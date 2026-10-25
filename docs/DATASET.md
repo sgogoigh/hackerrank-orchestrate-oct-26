@@ -130,13 +130,63 @@ The core entity graph flows from the incoming request to evidence verification:
 
 ```mermaid
 erDiagram
+    DELETION_REQUESTS {
+        string case_id PK
+        string email
+        string requested_at
+        string reported_status
+        string reported_at
+        string audit_at
+        string request_text
+    }
+    USER_IDENTITIES {
+        string user_id PK
+        string name
+        string email
+        string phone
+        string email_hash
+    }
+    USER_AUDIT_LOG {
+        string audit_id PK
+        string user_id FK
+        string changed_at
+        string field_name
+        string old_value
+        string new_value
+    }
+    SYSTEM_ACTIVITY {
+        string activity_id PK
+        string event_time
+        string event_type
+        string source_system
+        string target_system
+        string resource_id
+        string reported_result
+    }
+    EVIDENCE_FILES {
+        string file_id PK
+        string file_path
+        string origin
+        string captured_at
+    }
+    OUTPUT_STEPS {
+        int step_no PK
+        string phase
+        string system_id
+        string resource_id
+        string operation
+        string state
+        string evidence_id
+    }
+
     DELETION_REQUESTS ||--o| USER_IDENTITIES : "matches current email"
-    DELETION_REQUESTS ||--o| USER_AUDIT_LOG : "matches historical email"
+    DELETION_REQUESTS ||--o{ USER_AUDIT_LOG : "matches historical email"
     USER_IDENTITIES ||--o{ USER_AUDIT_LOG : "user_id tracks changes"
-    USER_IDENTITIES ||--o{ SYSTEM_ACTIVITY : "user_id / email in details"
-    SYSTEM_ACTIVITY ||--o{ EVIDENCE_FILES : "resource_id observed in evidence"
-    DELETION_RULES ||--o{ OUTPUT_STEPS : "determines required operations"
+    USER_IDENTITIES ||--o{ SYSTEM_ACTIVITY : "triggers actions"
+    SYSTEM_ACTIVITY ||--o{ EVIDENCE_FILES : "evidenced in"
+    DELETION_REQUESTS ||--o{ OUTPUT_STEPS : "produces audit steps"
 ```
+
 
 ### Identity Resolution Protocol
 1. **Primary Lookup:** Match `deletion_requests.email` against `user_identities.email` (case-insensitive).

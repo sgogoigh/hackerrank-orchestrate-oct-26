@@ -59,44 +59,47 @@ Every single scenario and edge case established in [docs/SCENARIOS.md](./SCENARI
 ## 3. Architecture & Component Workflow
 
 ```mermaid
-graph TD
-    subgraph 1. Ingestion & Intent Filter (SC-01 to SC-05)
-        A[deletion_requests.csv] --> B[Multilingual Intent Classifier<br/>Gemini 3.8 Flash]
-        B -->|Non-Deletion: Opt-out, Access, Rectify, Export| C[Output: case_id, NOT_APPLICABLE, []]
-        B -->|Authorized Deletion| D[Authorized Deletion Cases]
+flowchart TD
+    subgraph stage1 ["1. Ingestion and Intent Filter (SC-01 to SC-05)"]
+        A["deletion_requests.csv"] --> B["Multilingual Intent Classifier: Gemini 3.8 Flash"]
+        B -->|"Non-Deletion: Opt-out, Access, Rectify, Export"| C["Output: case_id, NOT_APPLICABLE, (empty array)"]
+        B -->|"Authorized Deletion"| D["Authorized Deletion Cases"]
     end
 
-    subgraph 2. Identity Graph Resolution (SC-06 to SC-10)
-        D --> E[Subject Identity Resolver]
-        E -->|Primary Snapshot| F[(user_identities.csv)]
-        E -->|Audit History| G[(user_audit_log.csv)]
-        E --> H[Subject Identity Graph:<br/>user_id, current/historical emails,<br/>phones, names, email_hashes, tombstones]
+    subgraph stage2 ["2. Identity Graph Resolution (SC-06 to SC-10)"]
+        D --> E["Subject Identity Resolver"]
+        E -->|"Primary Snapshot"| F[("user_identities.csv")]
+        E -->|"Audit History"| G[("user_audit_log.csv")]
+        E --> H["Subject Identity Graph: user_id, current and historical emails, phones, names, hashes, tombstones"]
     end
 
-    subgraph 3. Temporal Evidence Extraction (SC-11 to SC-16, SC-30)
-        H --> I[Temporal Evidence Scanner]
-        I -->|Filter <= audit_at| J[(system_activity.csv)]
-        I -->|Filter <= audit_at| K[(evidence_files.csv)]
-        K --> L[Evidence Parsers:<br/>Logs, JSON exports, SQL replicas, Bundles]
+    subgraph stage3 ["3. Temporal Evidence Extraction (SC-11 to SC-16, SC-30)"]
+        H --> I["Temporal Evidence Scanner"]
+        I -->|"Filter up to audit_at"| J[("system_activity.csv")]
+        I -->|"Filter up to audit_at"| K[("evidence_files.csv")]
+        K --> L["Evidence Parsers: Logs, JSON exports, SQL replicas, Bundles, PDFs"]
     end
 
-    subgraph 4. Deletion Rule Engine (SC-17 to SC-29)
-        L & J --> M[Resource State Evaluator]
-        M -->|Apply| N[(deletion_rules.csv)]
-        N --> O{Any Residual Records / Recreation Risks?}
-        O -->|No Violations| P[COMPLETE Status<br/>Evidence-backed Verification]
-        O -->|Violations Found| Q[INCOMPLETE Status<br/>Findings + Remediation + Future Verification]
+    subgraph stage4 ["4. Deletion Rule Engine (SC-17 to SC-29)"]
+        L --> M["Resource State Evaluator"]
+        J --> M
+        M -->|"Apply"| N[("deletion_rules.csv")]
+        N --> O{"Any Residual Records or Recreation Risks?"}
+        O -->|"No Violations"| P["COMPLETE Status: Evidence-backed Verification"]
+        O -->|"Violations Found"| Q["INCOMPLETE Status: Findings + Remediation + Prospective Verification"]
     end
 
-    subgraph 5. Deterministic Serialization & Sequencing
-        P & Q --> R[Deterministic Step Sequencer<br/>Phase -> Op Sequence -> system_id -> resource_id]
-        C & R --> S[output.csv<br/>518 rows sorted by case_id]
+    subgraph stage5 ["5. Deterministic Serialization and Sequencing"]
+        P --> R["Deterministic Step Sequencer: Phase to System to Resource ID"]
+        Q --> R
+        C --> S["output.csv: 518 rows sorted by case_id"]
+        R --> S
     end
 
-    subgraph 6. Evaluation & Usage Reporting
-        S --> T[Evaluation Engine<br/>code/evaluation/main.py]
-        T -->|Benchmark against| U[(sample_output.csv)]
-        T --> V[code/evaluation/evaluation_report.md<br/>code/evaluation/usage_report.md]
+    subgraph stage6 ["6. Evaluation and Usage Reporting"]
+        S --> T["Evaluation Engine: code/evaluation/main.py"]
+        T -->|"Benchmark against"| U[("sample_output.csv")]
+        T --> V["Evaluation and Usage Reports: docs/ and code/evaluation/"]
     end
 ```
 
