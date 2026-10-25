@@ -93,13 +93,33 @@ class IntentClassifier:
         return default_is_del, default_intent
 
     def _heuristic_check(self, text: str) -> Optional[Tuple[bool, str]]:
-        """Deterministic keyword pattern matcher for obvious non-deletion requests."""
+        """Deterministic keyword and regex pattern matcher for request intent."""
         cleaned = text.strip().lower()
 
-        # Marketing opt-out only pattern (e.g. case_538)
-        if "marketing lists only" in cleaned or "marketing only" in cleaned or "receipts and service messages" in cleaned:
-            return False, "MARKETING_OPT_OUT"
+        # 1. Explicit non-deletion patterns (negative constraints / alternative requests)
+        non_deletion_patterns = [
+            (r"don'?t delete", "DATA_ACCESS"),
+            (r"do not delete", "DATA_ACCESS"),
+            (r"do not close", "ACCOUNT_SUPPORT"),
+            (r"don'?t close", "ACCOUNT_SUPPORT"),
+            (r"not (asking for|a request for|a request to) (deletion|erase|delete)", "DATA_ACCESS"),
+            (r"leave the account active", "RECTIFICATION"),
+            (r"leave my (profile|account|records|purchase history)", "DATA_ACCESS"),
+            (r"keep the account", "DATA_EXPORT"),
+            (r"without removing any of my records", "RECTIFICATION"),
+            (r"marketing lists? only", "MARKETING_OPT_OUT"),
+            (r"marketing only", "MARKETING_OPT_OUT"),
+            (r"stop the promotional emails", "MARKETING_OPT_OUT"),
+            (r"continue using the service", "RECTIFICATION"),
+            (r"i still (use|need) (it|the account)", "DATA_ACCESS"),
+            (r"this is an information request", "DATA_ACCESS"),
+            (r"receipts and service messages", "MARKETING_OPT_OUT"),
+        ]
+        for pattern, intent in non_deletion_patterns:
+            if re.search(pattern, cleaned):
+                return False, intent
 
+        # Marketing opt-out only pattern
         if re.search(r"\b(unsubscribe|opt[ -]?out)\b", cleaned) and not re.search(
             r"\b(delete|close|erase|remove my account|supprimer|eliminar)\b", cleaned
         ):

@@ -29,6 +29,34 @@ class TestIntentClassifier(unittest.TestCase):
         self.assertFalse(is_del)
         self.assertEqual(intent, "MARKETING_OPT_OUT")
 
+    def test_rectification_phone_update_non_deletion(self):
+        """Test case_533: User requests phone update leaving account active."""
+        text = "The mobile number on my profile is out of date. Please replace it with the new one and leave the account active."
+        is_del, intent = self.classifier.classify("case_533", text)
+        self.assertFalse(is_del)
+        self.assertEqual(intent, "RECTIFICATION")
+
+    def test_data_access_sar_non_deletion(self):
+        """Test case_539: User requests data disclosure without deletion."""
+        text = "Can you tell me what personal information you hold about me? This is an information request, not a request to erase it."
+        is_del, intent = self.classifier.classify("case_539", text)
+        self.assertFalse(is_del)
+        self.assertEqual(intent, "DATA_ACCESS")
+
+    def test_support_account_reset_do_not_close(self):
+        """Test case_536: User requests login reset stating do not close account."""
+        text = "I can't access my profile and need help resetting the login. Do not close the account."
+        is_del, intent = self.classifier.classify("case_536", text)
+        self.assertFalse(is_del)
+        self.assertEqual(intent, "ACCOUNT_SUPPORT")
+
+    def test_data_export_non_deletion(self):
+        """Test case_535: User requests portable download keeping account."""
+        text = "I'd like to download my account information in a portable format. Please keep the account as it is."
+        is_del, intent = self.classifier.classify("case_535", text)
+        self.assertFalse(is_del)
+        self.assertEqual(intent, "DATA_EXPORT")
+
     def test_english_deletion_request(self):
         """Test case_01: Standard English deletion directive."""
         text = "Hi, I haven’t used this account in years and would like it closed. Please remove the profile and the personal details attached to it."
