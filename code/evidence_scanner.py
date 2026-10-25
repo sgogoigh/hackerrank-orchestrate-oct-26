@@ -155,8 +155,9 @@ class EvidenceScanner:
                             parts = [x.strip() for x in line.split("|")]
                             if len(parts) >= 6:
                                 self.handover_entries.append((
-                                    file_id, parts[1], parts[2], parts[4], parts[5].strip().lower(), cap_at
+                                    file_id, parts[1], parts[2], parts[3], parts[4], parts[5].strip().lower(), cap_at
                                 ))
+
 
             # 2. PDF Documents
             elif fpath.endswith(".pdf") and pypdf is not None:
@@ -242,10 +243,13 @@ class EvidenceScanner:
         audit_at: str,
         requested_at: Optional[str] = None,
         case_id: Optional[str] = None,
+        reported_at: Optional[str] = None,
     ) -> List[ObservedResource]:
         """Scans all eligible evidence and system activity for resources belonging to identity."""
         req_at = requested_at or "1970-01-01T00:00:00Z"
         aud_at = audit_at
+        rep_at = reported_at
+
 
         # Default account_id mapping for user_01..user_10
         if case_id and case_id.startswith("case_"):
@@ -281,55 +285,72 @@ class EvidenceScanner:
         observed: Dict[str, ObservedResource] = {}
 
         # 1. Text Handover
-        for fid, sys_id, res_id, st, ident_val, cap_at in self.handover_entries:
+        for fid, sys_id, res_id, cat, st, ident_val, cap_at in self.handover_entries:
             if req_at <= cap_at <= aud_at:
                 if (ident_val in all_idents) or (res_id in associated_resources):
                     if sys_id == "account_service":
                         observed[res_id] = ObservedResource(
                             system_id=sys_id, resource_id=res_id,
                             state="ABSENT" if st == "NOT_FOUND" else "PRESENT",
-                            evidence_id=fid, is_compliant=(st == "NOT_FOUND")
+                            evidence_id=fid, is_compliant=(st == "NOT_FOUND"),
+                            data_category=cat
                         )
                     elif sys_id == "security_service":
                         observed[res_id] = ObservedResource(
                             system_id=sys_id, resource_id=res_id,
-                            state="PRESENT", evidence_id=fid, is_compliant=True
+                            state="PRESENT", evidence_id=fid, is_compliant=True,
+                            data_category=cat
                         )
                     elif sys_id == "analytics_platform":
                         is_c = (st == "ANONYMIZED")
                         observed[res_id] = ObservedResource(
                             system_id=sys_id, resource_id=res_id,
                             state="ANONYMIZED" if is_c else "PRESENT",
-                            evidence_id=fid, is_compliant=is_c
+                            evidence_id=fid, is_compliant=is_c,
+                            data_category=cat
                         )
                     elif sys_id == "backup_service":
                         is_c = (st == "BLOCKED")
                         observed[res_id] = ObservedResource(
                             system_id=sys_id, resource_id=res_id,
                             state="BLOCKED" if is_c else "ACTIVE",
-                            evidence_id=fid, is_compliant=is_c
+                            evidence_id=fid, is_compliant=is_c,
+                            data_category=cat
                         )
                     elif sys_id == "integration_service":
                         is_c = (st == "DISABLED")
                         observed[res_id] = ObservedResource(
                             system_id=sys_id, resource_id=res_id,
                             state="DISABLED" if is_c else "ACTIVE",
-                            evidence_id=fid, is_compliant=is_c
+                            evidence_id=fid, is_compliant=is_c,
+                            data_category=cat
                         )
                     elif sys_id in ("search_service", "export_service"):
                         is_c = (st == "NOT_FOUND")
                         observed[res_id] = ObservedResource(
                             system_id=sys_id, resource_id=res_id,
                             state="ABSENT" if is_c else "PRESENT",
-                            evidence_id=fid, is_compliant=is_c
+                            evidence_id=fid, is_compliant=is_c,
+                            data_category=cat
                         )
                     elif sys_id == "support_platform":
-                        is_c = (st == "REDACTED")
-                        observed[res_id] = ObservedResource(
-                            system_id=sys_id, resource_id=res_id,
-                            state="REDACTED" if is_c else "PRESENT",
-                            evidence_id=fid, is_compliant=is_c
-                        )
+                        if cat == "SUPPORT_ATTACHMENT":
+                            is_c = (st == "NOT_FOUND")
+                            observed[res_id] = ObservedResource(
+                                system_id=sys_id, resource_id=res_id,
+                                state="ABSENT" if is_c else "PRESENT",
+                                evidence_id=fid, is_compliant=is_c,
+                                data_category="SUPPORT_ATTACHMENT"
+                            )
+                        else:
+                            is_c = (st == "REDACTED")
+                            observed[res_id] = ObservedResource(
+                                system_id=sys_id, resource_id=res_id,
+                                state="REDACTED" if is_c else "PRESENT",
+                                evidence_id=fid, is_compliant=is_c,
+                                data_category=cat
+                            )
+
 
         # 2. PDF Documents
         for fid, text, cap_at in self.pdf_entries:
@@ -415,11 +436,14 @@ class EvidenceScanner:
                                 found_in_snap = True
                                 break
                         if not found_in_snap:
-                            if identity.account_id not in observed or observed[identity.account_id].is_compliant:
+                            if rep_at and snap_cap < rep_at:
+                                pass
+                            elif identity.account_id not in observed or observed[identity.account_id].is_compliant:
                                 observed[identity.account_id] = ObservedResource(
                                     system_id="account_service", resource_id=identity.account_id,
                                     state="ABSENT", evidence_id=fid, is_compliant=True
                                 )
+
 
             # Service resource exports
             if req_at <= cap_at <= aud_at:
@@ -556,10 +580,12 @@ class EvidenceScanner:
                                         state="PRESENT", evidence_id=fid, is_compliant=False
                                     )
                     if not found_in_replica and identity.account_id:
-                        observed[identity.account_id] = ObservedResource(
-                            system_id="account_service", resource_id=identity.account_id,
-                            state="ABSENT", evidence_id=fid, is_compliant=True
-                        )
+                        if identity.account_id not in observed:
+                            observed[identity.account_id] = ObservedResource(
+                                system_id="account_service", resource_id=identity.account_id,
+                                state="ABSENT", evidence_id=fid, is_compliant=True
+                            )
+
                 elif "customer_search_primary" in fpath:
                     for l in lines:
                         if matches_any_ident(l, all_idents):

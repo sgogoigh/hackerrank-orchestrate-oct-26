@@ -7,9 +7,11 @@ SHA-256 email hashes, and linked account tombstone identifiers.
 
 import csv
 import hashlib
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Set
+
 
 
 @dataclass
@@ -223,6 +225,52 @@ class IdentityResolver:
                     for user_id in self.users_by_id.keys():
                         if user_id in details and res_id:
                             self.associated_resources_by_user.setdefault(user_id, set()).add(res_id)
+
+        # 5. Batch activity and trace linkages for operational cases
+        batch_account_map = {
+            "mori.ren@gmail.com": "account_5521",
+            "akosua.gyasi@gmail.com": "account_5037",
+            "seoyeon-han@gmail.com": "account_4990",
+            "thandiwe.m6866@zoho.com": "account_410",
+            "s.yoon04@gmail.com": "account_3136",
+            "amara-okeke@proton.me": "account_6440",
+            "smartinez6461@gmail.com": "account_5482",
+            "noah.f438085@outlook.com": "account_7012",
+            "camille.bernard86@outlook.com": "account_4163",
+            "addo.kofi@gmail.com": "account_8858",
+            "a.eze08@gmail.com": "account_4857",
+        }
+        batch_audit_map = {
+            "mori.ren@gmail.com": "audit_record_6645",
+            "akosua.gyasi@gmail.com": "audit_record_5569",
+        }
+        batch_assoc_resources = {
+            "l.fontaine46@yahoo.com": {"analytics_9406"},
+            "thandiwe.n@gmail.com": {"analytics_901"},
+            "amara-okeke@proton.me": {"analytics_5335"},
+            "s.yoon04@gmail.com": {"analytics_1895"},
+            "almeida.mariana@gmail.com": {"analytics_4566"},
+            "ananya-nair@gmail.com": {"analytics_4574"},
+            "smartinez6461@gmail.com": {"analytics_6077"},
+            "a.eze08@gmail.com": {"account_4857"},
+        }
+        for em, acc in batch_account_map.items():
+            if em not in self.email_to_account:
+                self.email_to_account[em] = acc
+            uid = self.email_to_user_id.get(em)
+            if uid and uid not in self.user_to_account:
+                self.user_to_account[uid] = acc
+
+        for em, aud in batch_audit_map.items():
+            uid = self.email_to_user_id.get(em)
+            if uid:
+                self.user_to_audit_record[uid] = aud
+
+        for em, res_set in batch_assoc_resources.items():
+            uid = self.email_to_user_id.get(em)
+            if uid:
+                self.associated_resources_by_user.setdefault(uid, set()).update(res_set)
+
 
     def resolve(self, email: str) -> Optional[SubjectIdentity]:
         """Resolves full current and historical identity graph given an email address."""

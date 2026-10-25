@@ -64,14 +64,17 @@ def run_pipeline(
                 results.append((case_id, "NOT_APPLICABLE", "[]"))
                 continue
 
-            # 3. Evidence Extraction at audit_at with temporal lower bound requested_at
+            # 3. Evidence Extraction at audit_at with temporal bounds
             requested_at = row.get("requested_at", "").strip()
+            reported_at = row.get("reported_at", "").strip()
             resources = scanner.scan_subject_resources(
                 identity=identity,
                 audit_at=audit_at,
                 requested_at=requested_at,
                 case_id=case_id,
+                reported_at=reported_at,
             )
+
 
             # 4. Policy Evaluation & Step Sequencing
             status, steps = auditor.audit_case(case_id, is_deletion, resources, identity=identity)
