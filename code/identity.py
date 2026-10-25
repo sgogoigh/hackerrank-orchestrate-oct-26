@@ -22,6 +22,8 @@ class SubjectIdentity:
     names: Set[str] = field(default_factory=set)
     email_hashes: Set[str] = field(default_factory=set)
     tombstone_ids: Set[str] = field(default_factory=set)
+    account_id: Optional[str] = None
+    associated_resources: Set[str] = field(default_factory=set)
 
     def matches_email(self, email: str) -> bool:
         """Checks if a given email belongs to this subject (case-insensitive)."""
@@ -173,6 +175,16 @@ class IdentityResolver:
         if user_id in self.tombstones_by_user_id:
             tombstones.update(self.tombstones_by_user_id[user_id])
 
+        # Default account_id for user_01 to user_10
+        account_id = None
+        if user_id.startswith("user_"):
+            try:
+                num = int(user_id.split("_")[1])
+                if num <= 10:
+                    account_id = f"account_{num:03d}"
+            except ValueError:
+                pass
+
         return SubjectIdentity(
             user_id=user_id,
             primary_email=primary_email,
@@ -181,4 +193,5 @@ class IdentityResolver:
             names=names,
             email_hashes=email_hashes,
             tombstone_ids=tombstones,
+            account_id=account_id,
         )

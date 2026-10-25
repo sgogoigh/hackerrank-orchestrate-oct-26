@@ -64,13 +64,20 @@ def run_pipeline(
                 results.append((case_id, "NOT_APPLICABLE", "[]"))
                 continue
 
-            # 3. Evidence Extraction at audit_at
-            resources = scanner.scan_subject_resources(identity, audit_at)
+            # 3. Evidence Extraction at audit_at with temporal lower bound requested_at
+            requested_at = row.get("requested_at", "").strip()
+            resources = scanner.scan_subject_resources(
+                identity=identity,
+                audit_at=audit_at,
+                requested_at=requested_at,
+                case_id=case_id,
+            )
 
             # 4. Policy Evaluation & Step Sequencing
             status, steps = auditor.audit_case(case_id, is_deletion, resources)
             steps_json_str = json.dumps(steps, separators=(",", ":"), ensure_ascii=False)
             results.append((case_id, status, steps_json_str))
+
 
     # Sort results ascending by case_id
     results.sort(key=lambda x: x[0])

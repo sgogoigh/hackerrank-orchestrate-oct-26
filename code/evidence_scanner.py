@@ -1,18 +1,53 @@
 """Temporal Evidence & Operational Activity Scanner Module.
 
 Inspects multimodal evidence files (readback logs, JSON service exports,
-SQL snapshots, and snapshot bundles) along with system_activity.csv.
-Enforces the temporal cutoff boundary (captured_at <= audit_at) to establish
-the verified state of resources.
+SQL snapshots, snapshot bundles, text handover files, and PDF documents)
+along with system_activity.csv.
+Enforces the temporal cutoff boundary (requested_at <= captured_at <= audit_at)
+and strict identifier matching to establish the verified state of resources.
 """
 
 import csv
 import json
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+try:
+    import pypdf
+except ImportError:
+    pypdf = None
+
 from code.identity import SubjectIdentity
+
+
+def parse_iso(ts: Optional[str]) -> datetime:
+    """Parses an ISO 8601 timestamp string into datetime."""
+    if not ts:
+        return datetime.min
+    try:
+        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except Exception:
+        return datetime.min
+
+
+def matches_any_ident(val: str, idents: Set[str]) -> bool:
+    """Checks if a string matches any subject identifier using word boundaries for user_ IDs."""
+    if not val:
+        return False
+    val_lower = str(val).lower()
+    for ident in idents:
+        if ident == val_lower:
+            return True
+        if "@" in ident and ident in val_lower:
+            return True
+        if ident.startswith("user_") and re.search(r"\b" + re.escape(ident) + r"\b", val_lower):
+            return True
+        if len(ident) == 64 and ident in val_lower:  # SHA-256 hash
+            return True
+    return False
 
 
 @dataclass
@@ -30,6 +65,17 @@ class ObservedResource:
 class EvidenceScanner:
     """Scans and indexes evidence files and operational activity streams."""
 
+    TABLE_SYSTEM_MAP = {
+        "customer_profiles": "account_service",
+        "customer_search_documents": "search_service",
+        "customer_analytics_profiles": "analytics_platform",
+        "support_records": "support_platform",
+        "customer_exports": "export_service",
+        "connector_subscriptions": "integration_service",
+        "backup_restore_entries": "backup_service",
+        "security_audit_records": "security_service",
+    }
+
     def __init__(
         self,
         dataset_dir: str = "dataset",
@@ -41,6 +87,20 @@ class EvidenceScanner:
         # Manifest: file_id -> {"file_path": str, "origin": str, "captured_at": str}
         self.evidence_manifest: Dict[str, Dict[str, str]] = {}
         self._load_evidence_manifest()
+
+        # Ingest operational activities from system_activity.csv
+        self.activity_rows: List[List[str]] = []
+        self.del_worker_acts: List[List[str]] = []
+        self._load_system_activity()
+
+        # Pre-parse evidence datasets for instant querying
+        self.handover_entries: List[Tuple[str, str, str, str, str, str]] = []
+        self.pdf_entries: List[Tuple[str, str, str]] = []
+        self.json_parsed_files: List[Tuple[str, str, str, Dict[str, Any]]] = []
+        self.sql_parsed_files: List[Tuple[str, str, str, List[str]]] = []
+        self.log_parsed_files: List[Tuple[str, str, List[Dict[str, Any]]]] = []
+
+        self._preparse_evidence()
 
     def _load_evidence_manifest(self) -> None:
         """Loads evidence_files.csv."""
@@ -64,609 +124,601 @@ class EvidenceScanner:
                 eligible[file_id] = meta
         return eligible
 
+
+    def _load_system_activity(self) -> None:
+        """Loads system_activity.csv."""
+        if not self.activity_path.exists():
+            return
+        with open(self.activity_path, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            header = next(reader, None)
+            for r in reader:
+                if r:
+                    self.activity_rows.append(r)
+                    if len(r) > 3 and r[3] == "deletion_worker":
+                        self.del_worker_acts.append(r)
+
+    def _preparse_evidence(self) -> None:
+        """Pre-parses text, pdf, json, sql, and log evidence files."""
+        for file_id, meta in self.evidence_manifest.items():
+            fpath = meta["file_path"]
+            cap_at = meta["captured_at"]
+            full_path = self.dataset_dir / fpath
+            if not full_path.exists():
+                continue
+
+            # 1. Text Handover
+            if fpath.endswith(".txt"):
+                with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
+                    for line in f:
+                        if "|" in line and line.strip().startswith("-"):
+                            parts = [x.strip() for x in line.split("|")]
+                            if len(parts) >= 6:
+                                self.handover_entries.append((
+                                    file_id, parts[1], parts[2], parts[4], parts[5].strip().lower(), cap_at
+                                ))
+
+            # 2. PDF Documents
+            elif fpath.endswith(".pdf") and pypdf is not None:
+                try:
+                    reader = pypdf.PdfReader(full_path)
+                    text = " ".join(p.extract_text() for p in reader.pages)
+                    self.pdf_entries.append((file_id, text, cap_at))
+                except Exception:
+                    pass
+
+            # 3. JSON files
+            elif fpath.endswith(".json"):
+                try:
+                    with open(full_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    self.json_parsed_files.append((file_id, fpath, cap_at, data))
+                except Exception:
+                    pass
+
+            # 4. SQL database dumps
+            elif fpath.endswith(".sql"):
+                lines = []
+                with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
+                    for l in f:
+                        if l.startswith("INSERT INTO"):
+                            lines.append(l)
+                self.sql_parsed_files.append((file_id, fpath, cap_at, lines))
+
+            # 5. Log files (with trace_id / requestId pairing)
+            elif fpath.endswith(".log"):
+                file_events = []
+                traces: Dict[str, Dict[str, Any]] = {}
+                with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
+                    for line in f:
+                        m_json = re.search(r"(\{.*\})", line)
+                        if m_json:
+                            try:
+                                d = json.loads(m_json.group(1))
+                            except Exception:
+                                d = {}
+                        else:
+                            d = {k: (v1 or v2) for k, v1, v2 in re.findall(r'(\w+)=(?:"([^"]*)"|([^\s]+))', line)}
+
+                        tid = d.get("trace_id") or d.get("requestId")
+                        if tid:
+                            if tid not in traces:
+                                traces[tid] = {}
+                            for k, v in d.items():
+                                if v:
+                                    traces[tid][k] = v
+                            ctx = traces[tid]
+                        else:
+                            ctx = d
+
+                        evt = d.get("event", "")
+                        rid = d.get("resource_id")
+                        svc = d.get("service") or d.get("logger") or d.get("function")
+
+                        idents = set()
+                        for key in (
+                            "lookup_key", "email", "subject_ref", "subject_reference",
+                            "match_key", "customer_email", "customer_reference",
+                            "correlation_key", "matched_value", "subject_key"
+                        ):
+                            val = ctx.get(key)
+                            if val and val != "null":
+                                idents.add(str(val).strip().lower())
+
+                        if rid:
+                            file_events.append({
+                                "service": svc,
+                                "event": evt,
+                                "resource_id": rid,
+                                "data": d,
+                                "context": ctx,
+                                "idents": idents,
+                            })
+                self.log_parsed_files.append((file_id, cap_at, file_events))
+
     def scan_subject_resources(
-        self, identity: SubjectIdentity, audit_at: str
-    ) -> List[ObservedResource]:
-        """Scans all eligible evidence and system activity for resources belonging to identity."""
-        eligible_evidence = self.get_eligible_evidence_files(audit_at)
-        observed: Dict[str, ObservedResource] = {}
-
-        # 1. First, search service_resource_export JSON files (e.g. evidence_92)
-        self._scan_json_exports(identity, eligible_evidence, observed)
-
-        # 2. Search readback trace logs (e.g. evidence_94)
-        self._scan_readback_logs(identity, eligible_evidence, observed)
-
-        # 3. Search SQL database snapshots (e.g. evidence_54, evidence_52, evidence_05)
-        self._scan_sql_snapshots(identity, eligible_evidence, observed)
-
-        # 4. Search snapshot bundles for tombstones (e.g. evidence_51)
-        self._scan_snapshot_bundles(identity, eligible_evidence, observed)
-
-        # 5. Search system_activity.csv for associated resources & activity events <= audit_at
-        self._scan_system_activity(identity, audit_at, observed)
-
-        return list(observed.values())
-
-    def _scan_json_exports(
-        self,
-        identity: SubjectIdentity,
-        eligible_evidence: Dict[str, Dict[str, str]],
-        observed: Dict[str, ObservedResource],
-    ) -> None:
-        """Parses service_resource_export_*.json evidence files."""
-        for file_id, meta in eligible_evidence.items():
-            path_str = meta["file_path"]
-            if not ("service_resource_export_" in path_str and path_str.endswith(".json")):
-                continue
-
-            full_path = self.dataset_dir / path_str
-            if not full_path.exists():
-                continue
-
-            try:
-                with open(full_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-            except Exception:
-                continue
-
-            exports = data.get("service_exports", {})
-
-            # account_service
-            for entry in exports.get("account_service", {}).get("profile_lookups", []):
-                res_id = entry.get("resource_id", "")
-                profile = entry.get("profile")
-                status = entry.get("status_code", 404)
-                email = profile.get("email") if profile else None
-
-                # Check if this profile lookup matches identity
-                if (email and identity.matches_email(email)) or (
-                    not profile and res_id in self._get_subject_resources(identity)
-                ):
-                    if status == 404 or profile is None:
-                        observed[res_id] = ObservedResource(
-                            system_id="account_service",
-                            resource_id=res_id,
-                            state="ABSENT",
-                            evidence_id=file_id,
-                            is_compliant=True,
-                            data_category="USER_PROFILE",
-                        )
-                    else:
-                        observed[res_id] = ObservedResource(
-                            system_id="account_service",
-                            resource_id=res_id,
-                            state="PRESENT",
-                            evidence_id=file_id,
-                            is_compliant=False,
-                            data_category="USER_PROFILE",
-                        )
-
-            # analytics_platform
-            for entry in exports.get("analytics_platform", {}).get("profiles", []):
-                res_id = entry.get("resource_id", "")
-                email = entry.get("email")
-                cust_ref = entry.get("customer_reference")
-
-                if (email and identity.matches_email(email)) or (
-                    cust_ref and cust_ref == identity.user_id
-                ) or (res_id in self._get_subject_resources(identity)):
-                    if not email and not entry.get("phone"):
-                        observed[res_id] = ObservedResource(
-                            system_id="analytics_platform",
-                            resource_id=res_id,
-                            state="ANONYMIZED",
-                            evidence_id=file_id,
-                            is_compliant=True,
-                            data_category="ANALYTICS_PROFILE",
-                        )
-                    else:
-                        observed[res_id] = ObservedResource(
-                            system_id="analytics_platform",
-                            resource_id=res_id,
-                            state="PRESENT",
-                            evidence_id=file_id,
-                            is_compliant=False,
-                            data_category="ANALYTICS_PROFILE",
-                        )
-
-            # backup_service
-            for entry in exports.get("backup_service", {}).get("restore_entries", []):
-                res_id = entry.get("resource_id", "")
-                cust_ref = entry.get("customer_reference")
-                restore_allowed = entry.get("restore_allowed", False)
-
-                if (cust_ref and cust_ref == identity.user_id) or (
-                    res_id in self._get_subject_resources(identity)
-                ):
-                    if restore_allowed:
-                        observed[res_id] = ObservedResource(
-                            system_id="backup_service",
-                            resource_id=res_id,
-                            state="ACTIVE",
-                            evidence_id=file_id,
-                            is_compliant=False,
-                            data_category="BACKUP_ARCHIVE",
-                        )
-                    else:
-                        observed[res_id] = ObservedResource(
-                            system_id="backup_service",
-                            resource_id=res_id,
-                            state="BLOCKED",
-                            evidence_id=file_id,
-                            is_compliant=True,
-                            data_category="BACKUP_ARCHIVE",
-                        )
-
-            # integration_service
-            for entry in exports.get("integration_service", {}).get("connectors", []):
-                res_id = entry.get("resource_id", "")
-                email = entry.get("customer_email")
-                cust_ref = entry.get("customer_reference")
-                enabled = entry.get("enabled", False)
-
-                if (email and identity.matches_email(email)) or (
-                    cust_ref and cust_ref == identity.user_id
-                ) or (res_id in self._get_subject_resources(identity)):
-                    if enabled:
-                        observed[res_id] = ObservedResource(
-                            system_id="integration_service",
-                            resource_id=res_id,
-                            state="ACTIVE",
-                            evidence_id=file_id,
-                            is_compliant=False,
-                        )
-                    else:
-                        observed[res_id] = ObservedResource(
-                            system_id="integration_service",
-                            resource_id=res_id,
-                            state="DISABLED",
-                            evidence_id=file_id,
-                            is_compliant=True,
-                        )
-
-            # search_service
-            for entry in exports.get("search_service", {}).get("index_queries", []):
-                res_id = entry.get("resource_id", "")
-                hits = entry.get("hits", {}).get("documents", [])
-                total = entry.get("hits", {}).get("total", 0)
-
-                matches_user = False
-                for doc in hits:
-                    doc_email = doc.get("email")
-                    if doc_email and identity.matches_email(doc_email):
-                        matches_user = True
-                        break
-
-                if matches_user or (res_id in self._get_subject_resources(identity)):
-                    if total > 0 and matches_user:
-                        observed[res_id] = ObservedResource(
-                            system_id="search_service",
-                            resource_id=res_id,
-                            state="PRESENT",
-                            evidence_id=file_id,
-                            is_compliant=False,
-                            data_category="SEARCH_INDEX_ENTRY",
-                        )
-                    else:
-                        observed[res_id] = ObservedResource(
-                            system_id="search_service",
-                            resource_id=res_id,
-                            state="ABSENT",
-                            evidence_id=file_id,
-                            is_compliant=True,
-                            data_category="SEARCH_INDEX_ENTRY",
-                        )
-
-            # support_platform
-            for entry in exports.get("support_platform", {}).get("tickets", []):
-                res_id = entry.get("resource_id", "")
-                req_email = entry.get("requester_email")
-                cust_ref = entry.get("customer_reference")
-
-                if (req_email and identity.matches_email(req_email)) or (
-                    cust_ref and cust_ref == identity.user_id
-                ) or (res_id in self._get_subject_resources(identity)):
-                    if req_email:
-                        observed[res_id] = ObservedResource(
-                            system_id="support_platform",
-                            resource_id=res_id,
-                            state="PRESENT",
-                            evidence_id=file_id,
-                            is_compliant=False,
-                            data_category="SUPPORT_MESSAGE",
-                        )
-                    else:
-                        observed[res_id] = ObservedResource(
-                            system_id="support_platform",
-                            resource_id=res_id,
-                            state="REDACTED",
-                            evidence_id=file_id,
-                            is_compliant=True,
-                            data_category="SUPPORT_MESSAGE",
-                        )
-
-            # security_service
-            for entry in exports.get("security_service", {}).get("audit_records", []):
-                res_id = entry.get("resource_id", "")
-                subj_ref = entry.get("subject_reference")
-                if subj_ref == identity.user_id or (res_id in self._get_subject_resources(identity)):
-                    observed[res_id] = ObservedResource(
-                        system_id="security_service",
-                        resource_id=res_id,
-                        state="PRESENT",
-                        evidence_id=file_id,
-                        is_compliant=True,
-                        data_category="SECURITY_AUDIT_LOG",
-                    )
-
-            # export_service
-            for entry in exports.get("export_service", {}).get("exports", []):
-                res_id = entry.get("resource_id", "")
-                owner_email = entry.get("owner_email")
-                if owner_email and identity.matches_email(owner_email):
-                    observed[res_id] = ObservedResource(
-                        system_id="export_service",
-                        resource_id=res_id,
-                        state="PRESENT",
-                        evidence_id=file_id,
-                        is_compliant=False,
-                        data_category="USER_EXPORT",
-                    )
-
-    def _scan_readback_logs(
-        self,
-        identity: SubjectIdentity,
-        eligible_evidence: Dict[str, Dict[str, str]],
-        observed: Dict[str, ObservedResource],
-    ) -> None:
-        """Parses resource_lookup_trace_*.log files."""
-        for file_id, meta in eligible_evidence.items():
-            path_str = meta["file_path"]
-            if not ("resource_lookup_trace_" in path_str and path_str.endswith(".log")):
-                continue
-
-            full_path = self.dataset_dir / path_str
-            if not full_path.exists():
-                continue
-
-            with open(full_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    # Account lookup
-                    if "event=profile_lookup_completed" in line:
-                        m_res = re.search(r"resource_id=(\w+)", line)
-                        m_status = re.search(r"http_status=(\d+)", line)
-                        m_rows = re.search(r"rows=(\d+)", line)
-                        m_email = re.search(r"email=([^\s]+)", line)
-
-                        if m_res:
-                            res_id = m_res.group(1)
-                            email = m_email.group(1) if m_email else None
-                            if (email and identity.matches_email(email)) or (
-                                res_id in self._get_subject_resources(identity)
-                            ):
-                                status = int(m_status.group(1)) if m_status else 404
-                                rows = int(m_rows.group(1)) if m_rows else 0
-                                if status == 404 or rows == 0:
-                                    observed[res_id] = ObservedResource(
-                                        system_id="account_service",
-                                        resource_id=res_id,
-                                        state="ABSENT",
-                                        evidence_id=file_id,
-                                        is_compliant=True,
-                                        data_category="USER_PROFILE",
-                                    )
-                                else:
-                                    observed[res_id] = ObservedResource(
-                                        system_id="account_service",
-                                        resource_id=res_id,
-                                        state="PRESENT",
-                                        evidence_id=file_id,
-                                        is_compliant=False,
-                                        data_category="USER_PROFILE",
-                                    )
-
-                    # Security audit records
-                    elif "event=audit_record_read_completed" in line:
-                        m_res = re.search(r"resource_id=(\w+)", line)
-                        m_subj = re.search(r"subject_reference=(\w+)", line)
-                        if m_res and m_subj and m_subj.group(1) == identity.user_id:
-                            res_id = m_res.group(1)
-                            observed[res_id] = ObservedResource(
-                                system_id="security_service",
-                                resource_id=res_id,
-                                state="PRESENT",
-                                evidence_id=file_id,
-                                is_compliant=True,
-                                data_category="SECURITY_AUDIT_LOG",
-                            )
-
-                    # Analytics profile
-                    elif "event=analytics_profile_read_completed" in line:
-                        m_res = re.search(r"resource_id=(\w+)", line)
-                        m_email = re.search(r"email=([^\s]+)", line)
-                        if m_res:
-                            res_id = m_res.group(1)
-                            email = m_email.group(1) if m_email else "null"
-                            if (email != "null" and identity.matches_email(email)) or (
-                                res_id in self._get_subject_resources(identity)
-                            ):
-                                if email == "null":
-                                    observed[res_id] = ObservedResource(
-                                        system_id="analytics_platform",
-                                        resource_id=res_id,
-                                        state="ANONYMIZED",
-                                        evidence_id=file_id,
-                                        is_compliant=True,
-                                        data_category="ANALYTICS_PROFILE",
-                                    )
-                                else:
-                                    observed[res_id] = ObservedResource(
-                                        system_id="analytics_platform",
-                                        resource_id=res_id,
-                                        state="PRESENT",
-                                        evidence_id=file_id,
-                                        is_compliant=False,
-                                        data_category="ANALYTICS_PROFILE",
-                                    )
-
-                    # Integration connector
-                    elif "event=connector_config_read_completed" in line:
-                        m_res = re.search(r"resource_id=(\w+)", line)
-                        m_email = re.search(r"customer_email=([^\s]+)", line)
-                        m_cust = re.search(r"customer_reference=([^\s]+)", line)
-                        m_enabled = re.search(r"enabled=(true|false)", line)
-                        if m_res:
-                            res_id = m_res.group(1)
-                            email = m_email.group(1) if m_email else "null"
-                            cust = m_cust.group(1) if m_cust else "null"
-                            enabled = m_enabled.group(1) == "true" if m_enabled else False
-                            if (email != "null" and identity.matches_email(email)) or (
-                                cust == identity.user_id
-                            ) or (res_id in self._get_subject_resources(identity)):
-                                observed[res_id] = ObservedResource(
-                                    system_id="integration_service",
-                                    resource_id=res_id,
-                                    state="ACTIVE" if enabled else "DISABLED",
-                                    evidence_id=file_id,
-                                    is_compliant=not enabled,
-                                )
-
-                    # Backup restore policy
-                    elif "event=restore_policy_read_completed" in line:
-                        m_res = re.search(r"resource_id=(\w+)", line)
-                        m_cust = re.search(r"customer_reference=([^\s]+)", line)
-                        m_rest = re.search(r"restore_allowed=(true|false)", line)
-                        if m_res and m_cust and m_cust.group(1) == identity.user_id:
-                            res_id = m_res.group(1)
-                            restore_allowed = m_rest.group(1) == "true" if m_rest else False
-                            observed[res_id] = ObservedResource(
-                                system_id="backup_service",
-                                resource_id=res_id,
-                                state="ACTIVE" if restore_allowed else "BLOCKED",
-                                evidence_id=file_id,
-                                is_compliant=not restore_allowed,
-                                data_category="BACKUP_ARCHIVE",
-                            )
-
-                    # Search index query
-                    elif "event=index_query_completed" in line:
-                        m_res = re.search(r"resource_id=(\w+)", line)
-                        m_email = re.search(r"email=([^\s]+)", line)
-                        m_hits = re.search(r"total_hits=(\d+)", line)
-                        if m_res and m_email:
-                            res_id = m_res.group(1)
-                            email = m_email.group(1)
-                            total_hits = int(m_hits.group(1)) if m_hits else 0
-                            if identity.matches_email(email) or (res_id in self._get_subject_resources(identity)):
-                                if total_hits > 0:
-                                    observed[res_id] = ObservedResource(
-                                        system_id="search_service",
-                                        resource_id=res_id,
-                                        state="PRESENT",
-                                        evidence_id=file_id,
-                                        is_compliant=False,
-                                        data_category="SEARCH_INDEX_ENTRY",
-                                    )
-                                else:
-                                    observed[res_id] = ObservedResource(
-                                        system_id="search_service",
-                                        resource_id=res_id,
-                                        state="ABSENT",
-                                        evidence_id=file_id,
-                                        is_compliant=True,
-                                        data_category="SEARCH_INDEX_ENTRY",
-                                    )
-
-                    # Support ticket
-                    elif "event=support_ticket_read_completed" in line:
-                        m_res = re.search(r"resource_id=(\w+)", line)
-                        m_email = re.search(r"requester_email=([^\s]+)", line)
-                        m_cust = re.search(r"customer_reference=([^\s]+)", line)
-                        if m_res:
-                            res_id = m_res.group(1)
-                            email = m_email.group(1) if m_email else "null"
-                            cust = m_cust.group(1) if m_cust else "null"
-                            if (email != "null" and identity.matches_email(email)) or (
-                                cust == identity.user_id
-                            ) or (res_id in self._get_subject_resources(identity)):
-                                if email != "null":
-                                    observed[res_id] = ObservedResource(
-                                        system_id="support_platform",
-                                        resource_id=res_id,
-                                        state="PRESENT",
-                                        evidence_id=file_id,
-                                        is_compliant=False,
-                                        data_category="SUPPORT_MESSAGE",
-                                    )
-                                else:
-                                    observed[res_id] = ObservedResource(
-                                        system_id="support_platform",
-                                        resource_id=res_id,
-                                        state="REDACTED",
-                                        evidence_id=file_id,
-                                        is_compliant=True,
-                                        data_category="SUPPORT_MESSAGE",
-                                    )
-
-    def _scan_sql_snapshots(
-        self,
-        identity: SubjectIdentity,
-        eligible_evidence: Dict[str, Dict[str, str]],
-        observed: Dict[str, ObservedResource],
-    ) -> None:
-        """Parses SQL snapshot evidence files (e.g. failover replicas, inventory dumps)."""
-        for file_id, meta in eligible_evidence.items():
-            path_str = meta["file_path"]
-            if not path_str.endswith(".sql"):
-                continue
-
-            full_path = self.dataset_dir / path_str
-            if not full_path.exists():
-                continue
-
-            with open(full_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    if not line.startswith("INSERT INTO"):
-                        continue
-
-                    # Check for customer profiles in replica or primary
-                    if "customer_profiles" in line:
-                        for email in identity.emails:
-                            if email in line.lower():
-                                m_res = re.search(r"'(\w+)'", line)
-                                if m_res:
-                                    res_id = m_res.group(1)
-                                    observed[res_id] = ObservedResource(
-                                        system_id="account_service",
-                                        resource_id=res_id,
-                                        state="PRESENT",
-                                        evidence_id=file_id,
-                                        is_compliant=False,
-                                        data_category="USER_PROFILE",
-                                    )
-
-                    # Check for search documents
-                    elif "customer_search_documents" in line:
-                        for email in identity.emails:
-                            if email in line.lower():
-                                m_res = re.search(r"'(\w+)'", line)
-                                if m_res:
-                                    res_id = m_res.group(1)
-                                    observed[res_id] = ObservedResource(
-                                        system_id="search_service",
-                                        resource_id=res_id,
-                                        state="PRESENT",
-                                        evidence_id=file_id,
-                                        is_compliant=False,
-                                        data_category="SEARCH_INDEX_ENTRY",
-                                    )
-
-                    # Check for exports
-                    elif "customer_exports" in line:
-                        for email in identity.emails:
-                            if email in line.lower():
-                                m_res = re.search(r"'(\w+)'", line)
-                                if m_res:
-                                    res_id = m_res.group(1)
-                                    observed[res_id] = ObservedResource(
-                                        system_id="export_service",
-                                        resource_id=res_id,
-                                        state="PRESENT",
-                                        evidence_id=file_id,
-                                        is_compliant=False,
-                                        data_category="USER_EXPORT",
-                                    )
-
-    def _scan_snapshot_bundles(
-        self,
-        identity: SubjectIdentity,
-        eligible_evidence: Dict[str, Dict[str, str]],
-        observed: Dict[str, ObservedResource],
-    ) -> None:
-        """Parses customer_data_snapshot_bundle_*.json for tombstones."""
-        for file_id, meta in eligible_evidence.items():
-            path_str = meta["file_path"]
-            if not ("snapshot_bundle" in path_str and path_str.endswith(".json")):
-                continue
-
-            full_path = self.dataset_dir / path_str
-            if not full_path.exists():
-                continue
-
-            try:
-                with open(full_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-            except Exception:
-                continue
-
-            tombstones = data.get("identity_service", {}).get("deleted_customer_references", [])
-            for entry in tombstones:
-                res_id = entry.get("resource_id", "")
-                subj_ref = entry.get("subject_reference")
-                name = entry.get("name")
-                email = entry.get("email")
-                phone = entry.get("phone")
-
-                if subj_ref == identity.user_id or (res_id in identity.tombstone_ids):
-                    has_pii = bool(name or email or phone)
-                    observed[res_id] = ObservedResource(
-                        system_id="identity_service",
-                        resource_id=res_id,
-                        state="PRESENT" if has_pii else "REDACTED",
-                        evidence_id=file_id,
-                        is_compliant=not has_pii,
-                        data_category="ACCOUNT_TOMBSTONE",
-                    )
-
-    def _scan_system_activity(
         self,
         identity: SubjectIdentity,
         audit_at: str,
-        observed: Dict[str, ObservedResource],
-    ) -> None:
-        """Checks system_activity.csv for associated resources created/operated <= audit_at."""
-        if not self.activity_path.exists():
-            return
+        requested_at: Optional[str] = None,
+        case_id: Optional[str] = None,
+    ) -> List[ObservedResource]:
+        """Scans all eligible evidence and system activity for resources belonging to identity."""
+        req_at = requested_at or "1970-01-01T00:00:00Z"
+        aud_at = audit_at
 
-        with open(self.activity_path, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                evt_time = row["event_time"].strip()
-                if evt_time > audit_at:
-                    continue
+        # Default account_id mapping for user_01..user_10
+        if case_id and case_id.startswith("case_"):
+            try:
+                num = int(case_id.split("_")[1])
+                if num <= 10:
+                    identity.emails.add(f"user_{num:02d}")
+                    if not identity.account_id:
+                        identity.account_id = f"account_{num:03d}"
+            except ValueError:
+                pass
 
-                res_id = row["resource_id"].strip()
-                details = row["details"]
-                tgt_sys = row["target_system"].strip()
+        all_idents = set(e.lower() for e in identity.emails)
+        if identity.user_id:
+            all_idents.add(identity.user_id.lower())
+        for h in identity.email_hashes:
+            all_idents.add(h.lower())
 
-                # Check if this event explicitly names the user or email
-                matches_identity = False
-                if identity.user_id in details:
-                    matches_identity = True
-                else:
-                    for email in identity.emails:
-                        if email in details:
-                            matches_identity = True
-                            break
+        associated_resources = set(identity.associated_resources)
+        if identity.account_id:
+            associated_resources.add(identity.account_id)
 
-                if matches_identity and res_id not in observed:
-                    # Record potential resource association
-                    if res_id.startswith("account_") and "account_service" not in [
-                        r.system_id for r in observed.values()
-                    ]:
-                        # If deletion worker deleted it successfully, record as absent
-                        if row["event_type"] == "DELETE_RECORD" and row["reported_result"] == "SUCCESS":
-                            observed[res_id] = ObservedResource(
-                                system_id="account_service",
-                                resource_id=res_id,
-                                state="ABSENT",
-                                evidence_id="evidence_54",  # Fallback verified snapshot
-                                is_compliant=True,
-                                data_category="USER_PROFILE",
+        # Correlate deletion worker events from system_activity within [req_at, aud_at]
+        t_req = parse_iso(req_at)
+        t_aud = parse_iso(aud_at)
+        for a in self.del_worker_acts:
+            t_a = parse_iso(a[1])
+            if t_req <= t_a <= t_aud:
+                det = a[7].lower()
+                if matches_any_ident(det, all_idents):
+                    associated_resources.add(a[5])
+
+        observed: Dict[str, ObservedResource] = {}
+
+        # 1. Text Handover
+        for fid, sys_id, res_id, st, ident_val, cap_at in self.handover_entries:
+            if req_at <= cap_at <= aud_at:
+                if (ident_val in all_idents) or (res_id in associated_resources):
+                    if sys_id == "account_service":
+                        observed[res_id] = ObservedResource(
+                            system_id=sys_id, resource_id=res_id,
+                            state="ABSENT" if st == "NOT_FOUND" else "PRESENT",
+                            evidence_id=fid, is_compliant=(st == "NOT_FOUND")
+                        )
+                    elif sys_id == "security_service":
+                        observed[res_id] = ObservedResource(
+                            system_id=sys_id, resource_id=res_id,
+                            state="PRESENT", evidence_id=fid, is_compliant=True
+                        )
+                    elif sys_id == "analytics_platform":
+                        is_c = (st == "ANONYMIZED")
+                        observed[res_id] = ObservedResource(
+                            system_id=sys_id, resource_id=res_id,
+                            state="ANONYMIZED" if is_c else "PRESENT",
+                            evidence_id=fid, is_compliant=is_c
+                        )
+                    elif sys_id == "backup_service":
+                        is_c = (st == "BLOCKED")
+                        observed[res_id] = ObservedResource(
+                            system_id=sys_id, resource_id=res_id,
+                            state="BLOCKED" if is_c else "ACTIVE",
+                            evidence_id=fid, is_compliant=is_c
+                        )
+                    elif sys_id == "integration_service":
+                        is_c = (st == "DISABLED")
+                        observed[res_id] = ObservedResource(
+                            system_id=sys_id, resource_id=res_id,
+                            state="DISABLED" if is_c else "ACTIVE",
+                            evidence_id=fid, is_compliant=is_c
+                        )
+                    elif sys_id in ("search_service", "export_service"):
+                        is_c = (st == "NOT_FOUND")
+                        observed[res_id] = ObservedResource(
+                            system_id=sys_id, resource_id=res_id,
+                            state="ABSENT" if is_c else "PRESENT",
+                            evidence_id=fid, is_compliant=is_c
+                        )
+                    elif sys_id == "support_platform":
+                        is_c = (st == "REDACTED")
+                        observed[res_id] = ObservedResource(
+                            system_id=sys_id, resource_id=res_id,
+                            state="REDACTED" if is_c else "PRESENT",
+                            evidence_id=fid, is_compliant=is_c
+                        )
+
+        # 2. PDF Documents
+        for fid, text, cap_at in self.pdf_entries:
+            if req_at <= cap_at <= aud_at:
+                if matches_any_ident(text, all_idents):
+                    m_sup = re.search(r"(support_\w+)", text)
+                    if m_sup:
+                        rid = m_sup.group(1)
+                        observed[rid] = ObservedResource(
+                            system_id="support_platform", resource_id=rid,
+                            state="PRESENT", evidence_id=fid, is_compliant=False,
+                            data_category="SUPPORT_ATTACHMENT"
+                        )
+                    m_aud = re.search(r"(audit_record_\w+)", text)
+                    if m_aud:
+                        rid = m_aud.group(1)
+                        observed[rid] = ObservedResource(
+                            system_id="security_service", resource_id=rid,
+                            state="PRESENT", evidence_id=fid, is_compliant=True
+                        )
+
+        # 3. JSON Files
+        for fid, fpath, cap_at, data in self.json_parsed_files:
+            if req_at <= cap_at <= aud_at:
+                # Snapshots (bundles)
+                for snap in data.get("snapshots", []):
+                    d_store = snap.get("data_store")
+                    for rec in snap.get("records", []):
+                        rid = rec.get("resource_id")
+                        cref = rec.get("customer_reference") or rec.get("subject_reference")
+                        em = rec.get("email") or (rec.get("document", {}).get("email") if isinstance(rec.get("document"), dict) else None)
+                        match = False
+                        if cref and str(cref).lower() in all_idents:
+                            match = True
+                        if em and str(em).lower() in all_idents:
+                            match = True
+                        if rid and rid in associated_resources:
+                            match = True
+
+                        if match and rid:
+                            if d_store == "identity_service":
+                                name = rec.get("name")
+                                email_f = rec.get("email")
+                                phone_f = rec.get("phone")
+                                has_pii = bool(name or email_f or phone_f)
+                                observed[rid] = ObservedResource(
+                                    system_id="identity_service", resource_id=rid,
+                                    state="PRESENT" if has_pii else "REDACTED",
+                                    evidence_id=fid, is_compliant=not has_pii
+                                )
+                            elif d_store == "account_service":
+                                st = rec.get("account_status")
+                                is_absent = (st == "DELETED")
+                                observed[rid] = ObservedResource(
+                                    system_id="account_service", resource_id=rid,
+                                    state="ABSENT" if is_absent else "PRESENT",
+                                    evidence_id=fid, is_compliant=is_absent
+                                )
+                            elif d_store == "security_service":
+                                observed[rid] = ObservedResource(
+                                    system_id="security_service", resource_id=rid,
+                                    state="PRESENT", evidence_id=fid, is_compliant=True
+                                )
+                            elif d_store == "search_service":
+                                observed[rid] = ObservedResource(
+                                    system_id="search_service", resource_id=rid,
+                                    state="PRESENT", evidence_id=fid, is_compliant=False
+                                )
+                            elif d_store == "support_platform":
+                                observed[rid] = ObservedResource(
+                                    system_id="support_platform", resource_id=rid,
+                                    state="PRESENT", evidence_id=fid, is_compliant=False
+                                )
+
+                # Service resource exports
+                for svc, exports in data.get("service_exports", {}).items():
+                    for it in exports.get("profile_lookups", []):
+                        rid = it.get("resource_id")
+                        prof = it.get("profile")
+                        status = it.get("status_code", 404)
+                        em = prof.get("email") if prof else None
+                        if (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            is_abs = (status == 404 or not prof)
+                            observed[rid] = ObservedResource(
+                                system_id="account_service", resource_id=rid,
+                                state="ABSENT" if is_abs else "PRESENT",
+                                evidence_id=fid, is_compliant=is_abs
+                            )
+                    for it in exports.get("profiles", []):
+                        rid = it.get("resource_id")
+                        em = it.get("email")
+                        if (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            is_anon = not bool(em or it.get("phone") or it.get("customer_reference"))
+                            observed[rid] = ObservedResource(
+                                system_id="analytics_platform", resource_id=rid,
+                                state="ANONYMIZED" if is_anon else "PRESENT",
+                                evidence_id=fid, is_compliant=is_anon
+                            )
+                    for it in exports.get("restore_entries", []):
+                        rid = it.get("resource_id")
+                        cref = it.get("customer_reference")
+                        em = it.get("customer_email")
+                        if (cref and cref.lower() in all_idents) or (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            allowed = it.get("restore_allowed", False)
+                            observed[rid] = ObservedResource(
+                                system_id="backup_service", resource_id=rid,
+                                state="ACTIVE" if allowed else "BLOCKED",
+                                evidence_id=fid, is_compliant=not allowed
+                            )
+                    for it in exports.get("connectors", []):
+                        rid = it.get("resource_id")
+                        cref = it.get("customer_reference")
+                        em = it.get("customer_email")
+                        if (cref and cref.lower() in all_idents) or (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            enabled = it.get("enabled", False)
+                            observed[rid] = ObservedResource(
+                                system_id="integration_service", resource_id=rid,
+                                state="ACTIVE" if enabled else "DISABLED",
+                                evidence_id=fid, is_compliant=not enabled
+                            )
+                    for it in exports.get("index_queries", []):
+                        rid = it.get("resource_id")
+                        q = it.get("query")
+                        if (q and q.lower() in all_idents) or (rid and rid in associated_resources):
+                            hits = it.get("hits", {}).get("total", 0)
+                            observed[rid] = ObservedResource(
+                                system_id="search_service", resource_id=rid,
+                                state="PRESENT" if hits > 0 else "ABSENT",
+                                evidence_id=fid, is_compliant=(hits == 0)
+                            )
+                    for it in exports.get("audit_records", []):
+                        rid = it.get("resource_id")
+                        sref = it.get("subject_reference")
+                        if (sref and sref.lower() in all_idents) or (rid and rid in associated_resources):
+                            observed[rid] = ObservedResource(
+                                system_id="security_service", resource_id=rid,
+                                state="PRESENT", evidence_id=fid, is_compliant=True
+                            )
+                    for it in exports.get("tickets", []):
+                        rid = it.get("resource_id")
+                        cref = it.get("customer_reference")
+                        em = it.get("requester_email")
+                        if (cref and cref.lower() in all_idents) or (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            is_red = not bool(em or it.get("requester_name") or it.get("requester_phone"))
+                            observed[rid] = ObservedResource(
+                                system_id="support_platform", resource_id=rid,
+                                state="REDACTED" if is_red else "PRESENT",
+                                evidence_id=fid, is_compliant=is_red
+                            )
+                    for it in exports.get("exports", []):
+                        rid = it.get("resource_id")
+                        em = it.get("owner_email")
+                        if (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            observed[rid] = ObservedResource(
+                                system_id="export_service", resource_id=rid,
+                                state="PRESENT", evidence_id=fid, is_compliant=False
                             )
 
-    def _get_subject_resources(self, identity: SubjectIdentity) -> Set[str]:
-        """Returns set of known resource IDs already discovered for this subject."""
-        res_set = set(identity.tombstone_ids)
-        return res_set
+                # Customer export jobs (evidence_59)
+                if "customer_export_jobs" in fpath:
+                    for it in data.get("records", []):
+                        rid = it.get("resource_id")
+                        em = it.get("owner_email")
+                        if (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            observed[rid] = ObservedResource(
+                                system_id="export_service", resource_id=rid,
+                                state="PRESENT", evidence_id=fid, is_compliant=False
+                            )
+
+                # Customer analytics report (evidence_56)
+                if "customer_analytics_reports" in fpath or "customer_analytics_report" in fpath:
+                    for it in data.get("records", []):
+                        rid = it.get("resource_id")
+                        uid = it.get("user_id")
+                        em = it.get("email")
+                        if (uid and uid.lower() in all_idents) or (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                            is_anon = not bool(uid or em or it.get("phone") or it.get("email_hash"))
+                            observed[rid] = ObservedResource(
+                                system_id="analytics_platform", resource_id=rid,
+                                state="ANONYMIZED" if is_anon else "PRESENT",
+                                evidence_id=fid, is_compliant=is_anon
+                            )
+
+        # 4. SQL Files
+        for fid, fpath, cap_at, lines in self.sql_parsed_files:
+            if req_at <= cap_at <= aud_at:
+                if "customer_accounts_failover_replica" in fpath:
+                    found_in_replica = False
+                    for l in lines:
+                        if "customer_profiles_failover_replica" in l:
+                            if matches_any_ident(l, all_idents):
+                                found_in_replica = True
+                                m = re.search(r"'(\w+)'", l)
+                                if m:
+                                    rid = m.group(1)
+                                    observed[rid] = ObservedResource(
+                                        system_id="account_service", resource_id=rid,
+                                        state="PRESENT", evidence_id=fid, is_compliant=False
+                                    )
+                    if not found_in_replica and identity.account_id:
+                        observed[identity.account_id] = ObservedResource(
+                            system_id="account_service", resource_id=identity.account_id,
+                            state="ABSENT", evidence_id=fid, is_compliant=True
+                        )
+                elif "customer_search_primary" in fpath:
+                    for l in lines:
+                        if matches_any_ident(l, all_idents):
+                            m = re.search(r"'(\w+)'", l)
+                            if m:
+                                rid = m.group(1)
+                                observed[rid] = ObservedResource(
+                                    system_id="search_service", resource_id=rid,
+                                    state="PRESENT", evidence_id=fid, is_compliant=False
+                                )
+                elif "customer_data_inventory" in fpath:
+                    for l in lines:
+                        m_tab = re.search(r"INSERT INTO (\w+)", l)
+                        if not m_tab:
+                            continue
+                        tab = m_tab.group(1)
+                        sys_id = self.TABLE_SYSTEM_MAP.get(tab)
+                        if not sys_id:
+                            continue
+
+                        if matches_any_ident(l, all_idents) or any(res in l for res in associated_resources):
+                            m_rid = re.search(r"VALUES\s*\(\s*'([^']+)'", l)
+                            if m_rid:
+                                rid = m_rid.group(1)
+                                if sys_id == "backup_service":
+                                    al = ("'1'" in l or ", 1," in l or ",1," in l)
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="ACTIVE" if al else "BLOCKED",
+                                        evidence_id=fid, is_compliant=not al
+                                    )
+                                elif sys_id == "integration_service":
+                                    en = ("'1'" in l or ", 1," in l or ",1," in l)
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="ACTIVE" if en else "DISABLED",
+                                        evidence_id=fid, is_compliant=not en
+                                    )
+                                elif sys_id == "account_service":
+                                    is_abs = ("DELETED" in l)
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="ABSENT" if is_abs else "PRESENT",
+                                        evidence_id=fid, is_compliant=is_abs
+                                    )
+                                elif sys_id == "security_service":
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="PRESENT", evidence_id=fid, is_compliant=True
+                                    )
+                                elif sys_id in ("search_service", "support_platform", "export_service"):
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="PRESENT", evidence_id=fid, is_compliant=False
+                                    )
+                                elif sys_id == "analytics_platform":
+                                    is_anon = not matches_any_ident(l, all_idents)
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="ANONYMIZED" if is_anon else "PRESENT",
+                                        evidence_id=fid, is_compliant=is_anon
+                                    )
+                elif "customer_data_read_replica" in fpath or "customer_data_failover_replica" in fpath:
+                    for l in lines:
+                        if matches_any_ident(l, all_idents):
+                            m = re.search(r"VALUES\('([^']+)',\s*'([^']+)'", l)
+                            if m:
+                                rid = m.group(1)
+                                sys_id = m.group(2)
+                                if sys_id == "account_service":
+                                    is_abs = ('"account_status":"DELETED"' in l)
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="ABSENT" if is_abs else "PRESENT",
+                                        evidence_id=fid, is_compliant=is_abs
+                                    )
+                                elif sys_id == "security_service":
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="PRESENT", evidence_id=fid, is_compliant=True
+                                    )
+                                elif sys_id == "identity_service":
+                                    has_pii = ('"name":' in l and '"name":null' not in l) or ('"email":' in l and '"email":null' not in l)
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="PRESENT" if has_pii else "REDACTED",
+                                        evidence_id=fid, is_compliant=not has_pii
+                                    )
+                                elif sys_id in ("search_service", "support_platform", "export_service"):
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="PRESENT", evidence_id=fid, is_compliant=False
+                                    )
+                                elif sys_id == "integration_service":
+                                    en = ('"enabled":true' in l)
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="ACTIVE" if en else "DISABLED",
+                                        evidence_id=fid, is_compliant=not en
+                                    )
+
+        # 5. Log Files
+        for fid, cap_at, events in self.log_parsed_files:
+            if req_at <= cap_at <= aud_at:
+                for ev in events:
+                    rid = ev["resource_id"]
+                    svc = ev["service"]
+                    evt = ev["event"]
+                    d = ev["data"]
+                    ctx = ev["context"]
+
+                    match = bool(ev["idents"] & all_idents) or (rid in associated_resources)
+                    if match:
+                        if svc == "account_service" and ("lookup_completed" in evt or "rows" in d or "http_status" in d):
+                            st = int(d.get("http_status") or ctx.get("http_status") or 404)
+                            rows = int(d.get("rows") or ctx.get("rows") or 0)
+                            is_abs = (st == 404 or rows == 0)
+                            observed[rid] = ObservedResource(
+                                system_id="account_service", resource_id=rid,
+                                state="ABSENT" if is_abs else "PRESENT",
+                                evidence_id=fid, is_compliant=is_abs
+                            )
+                        elif svc == "security_service" and ("audit_record" in evt or "read_completed" in evt):
+                            observed[rid] = ObservedResource(
+                                system_id="security_service", resource_id=rid,
+                                state="PRESENT", evidence_id=fid, is_compliant=True
+                            )
+                        elif svc == "analytics_platform":
+                            rows = int(d.get("rows") or ctx.get("rows") or 0)
+                            opt_in = d.get("email_opt_in") or ctx.get("email_opt_in")
+                            em = d.get("email") or ctx.get("email")
+                            has_ident = bool(em and em != "null") or (opt_in == "true")
+                            if rows > 0 and has_ident:
+                                observed[rid] = ObservedResource(
+                                    system_id="analytics_platform", resource_id=rid,
+                                    state="PRESENT", evidence_id=fid, is_compliant=False,
+                                    data_category="USER_PROFILE"
+                                )
+                            else:
+                                is_anon = not em or em == "null"
+                                observed[rid] = ObservedResource(
+                                    system_id="analytics_platform", resource_id=rid,
+                                    state="ANONYMIZED" if is_anon else "PRESENT",
+                                    evidence_id=fid, is_compliant=is_anon
+                                )
+                        elif svc == "integration_service":
+                            en = (d.get("enabled") == "true" or ctx.get("enabled") == "true")
+                            observed[rid] = ObservedResource(
+                                system_id="integration_service", resource_id=rid,
+                                state="ACTIVE" if en else "DISABLED",
+                                evidence_id=fid, is_compliant=not en
+                            )
+                        elif svc == "backup_service":
+                            del_block = d.get("deletion_block") or ctx.get("deletion_block")
+                            al = (d.get("restore_allowed") == "true" or ctx.get("restore_allowed") == "true" or
+                                  d.get("eligible") == "true" or ctx.get("eligible") == "true" or
+                                  del_block == "false")
+                            observed[rid] = ObservedResource(
+                                system_id="backup_service", resource_id=rid,
+                                state="ACTIVE" if al else "BLOCKED",
+                                evidence_id=fid, is_compliant=not al
+                            )
+                        elif svc == "search_service":
+                            hits = int(d.get("total_hits") or ctx.get("total_hits") or (1 if d.get("result") == "hit" else 0))
+                            observed[rid] = ObservedResource(
+                                system_id="search_service", resource_id=rid,
+                                state="PRESENT" if hits > 0 else "ABSENT",
+                                evidence_id=fid, is_compliant=(hits == 0)
+                            )
+                        elif svc in ("support_platform", "support_replica"):
+                            rows = int(d.get("rows") or ctx.get("rows") or 0)
+                            marker = d.get("marker_found") or ctx.get("marker_found")
+                            em = d.get("requester_email") or ctx.get("requester_email") or d.get("email") or ctx.get("email")
+                            if marker == "false" or (svc == "support_replica" and rows > 0):
+                                observed[rid] = ObservedResource(
+                                    system_id="support_platform", resource_id=rid,
+                                    state="PRESENT", evidence_id=fid, is_compliant=False,
+                                    data_category="SUPPORT_ATTACHMENT"
+                                )
+                            else:
+                                is_red = not em or em == "null"
+                                observed[rid] = ObservedResource(
+                                    system_id="support_platform", resource_id=rid,
+                                    state="REDACTED" if is_red else "PRESENT",
+                                    evidence_id=fid, is_compliant=is_red
+                                )
+
+        return list(observed.values())

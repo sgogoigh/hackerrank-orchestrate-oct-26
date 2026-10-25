@@ -98,7 +98,7 @@ class DeletionAuditor:
         op = None
         state = res.state
 
-        if res.system_id in ("account_service", "search_service", "export_service"):
+        if res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
             op = "REPORT_REMAINING_RECORD"
             state = "PRESENT"
         elif res.system_id in ("support_platform", "analytics_platform", "identity_service"):
@@ -134,7 +134,7 @@ class DeletionAuditor:
         elif res.system_id == "backup_service":
             op = "BLOCK_RESTORE"
             state = "BLOCKED"
-        elif res.system_id in ("account_service", "search_service", "export_service"):
+        elif res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
             op = "DELETE_RECORD"
             state = "ABSENT"
         elif res.system_id in ("support_platform", "identity_service"):
@@ -161,7 +161,7 @@ class DeletionAuditor:
         op = None
         state = None
 
-        if res.system_id in ("account_service", "search_service", "export_service"):
+        if res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
             op = "VERIFY_RECORD_ABSENT"
             state = "ABSENT"
         elif res.system_id == "security_service":
@@ -197,7 +197,7 @@ class DeletionAuditor:
         op = None
         state = res.state
 
-        if res.system_id in ("account_service", "search_service", "export_service"):
+        if res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
             op = "VERIFY_RECORD_ABSENT"
             state = "ABSENT"
         elif res.system_id == "security_service":

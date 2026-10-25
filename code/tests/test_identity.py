@@ -60,7 +60,7 @@ class TestIdentityResolver(unittest.TestCase):
     def test_unknown_email_returns_none(self):
         """Test that a non-existent email returns None."""
         identity = self.resolver.resolve("non_existent_user_999999@domain.com")
-        self.assertNone(identity)
+        self.assertIsNone(identity)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,2752 @@
+{
+  "case_01": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_02": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_03": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_04": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_05": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_06": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_07": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_08": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_09": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_10": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_11": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_12": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_13": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_14": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_15": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_16": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_17": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_18": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_19": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_20": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_21": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_22": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_23": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_24": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_25": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_26": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_27": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_28": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_29": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_30": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_31": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_32": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_33": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_34": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_35": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_36": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_37": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_38": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_39": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_40": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_41": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_42": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_43": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_44": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_45": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_46": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_47": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_48": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_49": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_50": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_51": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_52": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_53": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_54": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_55": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_56": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_57": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_58": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_59": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_60": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_61": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_62": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_63": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_64": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_65": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_66": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_67": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_68": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_69": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_70": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_71": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_72": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_73": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_74": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_75": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_76": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_77": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_78": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_79": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_80": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_81": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_82": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_83": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_84": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_85": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_86": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_87": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_88": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_89": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_90": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_91": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_92": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_93": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_94": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_95": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_96": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_97": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_98": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_99": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_100": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_101": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_102": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_103": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_104": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_105": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_106": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_107": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_108": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_109": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_110": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_111": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_112": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_113": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_114": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_115": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_116": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_117": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_118": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_119": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_120": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_121": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_122": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_123": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_124": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_125": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_126": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_127": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_128": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_129": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_130": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_131": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_132": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_133": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_134": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_135": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_136": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_137": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_138": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_139": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_140": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_141": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_142": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_143": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_144": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_145": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_146": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_147": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_148": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_149": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_150": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_151": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_152": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_153": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_154": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_155": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_156": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_157": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_158": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_159": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_160": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_161": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_162": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_163": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_164": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_165": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_166": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_167": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_168": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_169": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_170": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_171": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_172": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_173": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_174": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_175": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_176": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_177": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_178": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_179": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_180": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_181": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_182": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_183": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_184": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_185": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_186": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_187": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_188": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_189": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_190": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_191": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_192": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_193": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_194": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_195": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_196": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_197": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_198": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_199": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_200": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_201": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_202": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_203": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_204": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_205": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_206": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_207": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_208": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_209": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_210": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_211": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_212": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_213": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_214": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_215": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_216": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_217": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_218": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_219": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_220": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_221": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_222": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_223": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_224": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_225": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_226": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_227": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_228": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_229": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_230": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_231": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_232": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_233": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_234": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_235": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_236": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_237": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_238": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_239": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_240": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_241": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_242": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_243": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_244": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_245": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_246": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_247": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_248": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_249": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_250": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_251": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_252": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_253": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_254": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_255": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_256": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_257": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_258": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_259": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_260": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_261": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_262": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_263": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_264": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_265": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_266": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_267": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_268": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_269": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_270": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_271": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_272": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_273": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_274": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_275": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_276": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_277": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_278": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_279": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_280": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_281": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_282": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_283": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_284": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_285": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_286": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_287": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_288": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_289": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_290": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_291": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_292": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_293": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_294": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_295": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_296": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_297": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_298": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_299": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_300": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_301": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_302": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_303": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_304": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_305": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_306": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_307": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_308": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_309": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_310": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_311": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_312": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_313": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_314": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_315": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_316": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_317": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_318": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_319": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_320": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_321": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_322": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_323": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_324": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_325": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_326": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_327": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_328": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_329": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_330": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_331": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_332": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_333": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_334": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_335": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_336": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_337": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_338": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_339": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_340": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_341": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_342": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_343": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_344": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_345": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_346": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_347": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_348": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_349": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_350": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_351": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_352": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_353": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_354": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_355": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_356": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_357": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_358": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_359": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_360": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_361": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_362": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_363": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_364": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_365": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_366": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_367": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_368": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_369": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_370": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_371": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_372": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_373": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_374": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_375": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_376": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_377": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_378": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_379": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_380": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_381": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_382": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_383": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_384": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_385": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_386": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_387": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_388": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_389": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_390": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_391": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_392": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_393": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_394": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_395": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_396": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_397": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_398": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_399": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_400": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_401": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_402": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_403": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_404": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_405": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_406": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_407": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_408": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_409": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_410": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_411": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_412": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_413": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_414": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_415": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_416": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_417": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_418": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_419": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_420": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_421": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_422": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_423": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_424": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_425": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_426": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_427": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_428": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_429": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_430": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_431": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_432": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_433": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_434": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_435": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_436": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_437": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_438": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_439": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_440": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_441": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_442": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_443": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_444": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_445": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_446": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_447": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_448": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_449": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_450": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_451": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_452": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_453": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_454": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_455": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_456": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_457": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_458": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_459": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_460": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_461": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_462": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_463": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_464": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_465": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_466": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_467": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_468": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_469": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_470": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_471": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_472": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_473": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_474": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_475": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_476": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_477": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_478": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_479": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_480": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_481": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_482": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_483": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_484": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_485": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_486": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_487": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_488": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_489": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_490": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_491": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_492": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_493": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_494": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_495": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_496": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_497": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_498": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_499": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_500": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_501": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_502": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_503": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_504": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_505": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_506": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_507": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_508": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_509": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_510": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_511": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_512": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_513": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_514": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_515": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_516": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_517": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_518": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_519": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_520": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_521": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_522": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_523": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_524": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_525": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_526": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_527": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_528": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_529": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_530": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_531": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_532": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_533": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_534": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_535": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_536": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_537": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_538": {
+    "is_deletion": false,
+    "intent": "MARKETING_OPT_OUT",
+    "source": "deterministic_rule"
+  },
+  "case_539": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_540": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_541": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_542": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_543": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_544": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_545": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_546": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_547": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_548": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "deterministic_rule"
+  },
+  "case_549": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  },
+  "case_550": {
+    "is_deletion": true,
+    "intent": "DELETION",
+    "source": "default_fallback"
+  }
+}
