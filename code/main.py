@@ -74,7 +74,7 @@ def run_pipeline(
             )
 
             # 4. Policy Evaluation & Step Sequencing
-            status, steps = auditor.audit_case(case_id, is_deletion, resources)
+            status, steps = auditor.audit_case(case_id, is_deletion, resources, identity=identity)
             steps_json_str = json.dumps(steps, separators=(",", ":"), ensure_ascii=False)
             results.append((case_id, status, steps_json_str))
 

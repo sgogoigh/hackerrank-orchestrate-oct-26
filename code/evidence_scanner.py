@@ -353,9 +353,10 @@ class EvidenceScanner:
 
         # 3. JSON Files
         for fid, fpath, cap_at, data in self.json_parsed_files:
-            if req_at <= cap_at <= aud_at:
-                # Snapshots (bundles)
-                for snap in data.get("snapshots", []):
+            # Snapshots (bundles)
+            for snap in data.get("snapshots", []):
+                snap_cap = snap.get("captured_at") or cap_at
+                if req_at <= snap_cap <= aud_at:
                     d_store = snap.get("data_store")
                     for rec in snap.get("records", []):
                         rid = rec.get("resource_id")
@@ -366,7 +367,7 @@ class EvidenceScanner:
                             match = True
                         if em and str(em).lower() in all_idents:
                             match = True
-                        if rid and rid in associated_resources:
+                        if rid and (rid in associated_resources or (identity.account_id and rid == identity.account_id)):
                             match = True
 
                         if match and rid:
@@ -404,19 +405,44 @@ class EvidenceScanner:
                                     state="PRESENT", evidence_id=fid, is_compliant=False
                                 )
 
-                # Service resource exports
+                    if d_store == "account_service" and identity.account_id:
+                        found_in_snap = False
+                        for rec in snap.get("records", []):
+                            rid = rec.get("resource_id")
+                            cref = rec.get("customer_reference") or rec.get("subject_reference")
+                            em = rec.get("email") or (rec.get("document", {}).get("email") if isinstance(rec.get("document"), dict) else None)
+                            if (rid and rid == identity.account_id) or (cref and str(cref).lower() in all_idents) or (em and str(em).lower() in all_idents):
+                                found_in_snap = True
+                                break
+                        if not found_in_snap:
+                            if identity.account_id not in observed or observed[identity.account_id].is_compliant:
+                                observed[identity.account_id] = ObservedResource(
+                                    system_id="account_service", resource_id=identity.account_id,
+                                    state="ABSENT", evidence_id=fid, is_compliant=True
+                                )
+
+            # Service resource exports
+            if req_at <= cap_at <= aud_at:
                 for svc, exports in data.get("service_exports", {}).items():
                     for it in exports.get("profile_lookups", []):
                         rid = it.get("resource_id")
                         prof = it.get("profile")
                         status = it.get("status_code", 404)
                         em = prof.get("email") if prof else None
-                        if (em and em.lower() in all_idents) or (rid and rid in associated_resources):
+                        if (em and em.lower() in all_idents) or (rid and (rid in associated_resources or (identity.account_id and rid == identity.account_id))):
                             is_abs = (status == 404 or not prof)
                             observed[rid] = ObservedResource(
                                 system_id="account_service", resource_id=rid,
                                 state="ABSENT" if is_abs else "PRESENT",
                                 evidence_id=fid, is_compliant=is_abs
+                            )
+                    for it in exports.get("audit_records", []):
+                        rid = it.get("resource_id")
+                        sref = it.get("subject_reference")
+                        if (sref and sref.lower() in all_idents) or (rid and (rid in associated_resources or (identity.audit_record_id and rid == identity.audit_record_id))):
+                            observed[rid] = ObservedResource(
+                                system_id="security_service", resource_id=rid,
+                                state="PRESENT", evidence_id=fid, is_compliant=True
                             )
                     for it in exports.get("profiles", []):
                         rid = it.get("resource_id")
@@ -596,9 +622,9 @@ class EvidenceScanner:
                                         state="ANONYMIZED" if is_anon else "PRESENT",
                                         evidence_id=fid, is_compliant=is_anon
                                     )
-                elif "customer_data_read_replica" in fpath or "customer_data_failover_replica" in fpath:
+                elif any(x in fpath for x in ("customer_data_read_replica", "customer_data_failover_replica", "customer_data_regional_replicas", "customer_data_reporting_replica")):
                     for l in lines:
-                        if matches_any_ident(l, all_idents):
+                        if matches_any_ident(l, all_idents) or any(res in l for res in associated_resources):
                             m = re.search(r"VALUES\('([^']+)',\s*'([^']+)'", l)
                             if m:
                                 rid = m.group(1)
@@ -634,6 +660,18 @@ class EvidenceScanner:
                                         state="ACTIVE" if en else "DISABLED",
                                         evidence_id=fid, is_compliant=not en
                                     )
+                                elif sys_id == "analytics_platform":
+                                    has_pii = (
+                                        ('"user_id":' in l and '"user_id":null' not in l) or
+                                        ('"email":' in l and '"email":null' not in l) or
+                                        ('"phone":' in l and '"phone":null' not in l) or
+                                        ('"email_hash":' in l and '"email_hash":null' not in l)
+                                    )
+                                    observed[rid] = ObservedResource(
+                                        system_id=sys_id, resource_id=rid,
+                                        state="PRESENT" if has_pii else "ANONYMIZED",
+                                        evidence_id=fid, is_compliant=not has_pii
+                                    )
 
         # 5. Log Files
         for fid, cap_at, events in self.log_parsed_files:
@@ -665,20 +703,26 @@ class EvidenceScanner:
                             rows = int(d.get("rows") or ctx.get("rows") or 0)
                             opt_in = d.get("email_opt_in") or ctx.get("email_opt_in")
                             em = d.get("email") or ctx.get("email")
-                            has_ident = bool(em and em != "null") or (opt_in == "true")
-                            if rows > 0 and has_ident:
+                            if opt_in == "true":
                                 observed[rid] = ObservedResource(
                                     system_id="analytics_platform", resource_id=rid,
                                     state="PRESENT", evidence_id=fid, is_compliant=False,
-                                    data_category="USER_PROFILE"
+                                    data_category="MARKETING_PROFILE"
                                 )
                             else:
-                                is_anon = not em or em == "null"
-                                observed[rid] = ObservedResource(
-                                    system_id="analytics_platform", resource_id=rid,
-                                    state="ANONYMIZED" if is_anon else "PRESENT",
-                                    evidence_id=fid, is_compliant=is_anon
-                                )
+                                has_ident = bool(em and em != "null")
+                                if rows > 0 and has_ident:
+                                    observed[rid] = ObservedResource(
+                                        system_id="analytics_platform", resource_id=rid,
+                                        state="PRESENT", evidence_id=fid, is_compliant=False
+                                    )
+                                else:
+                                    is_anon = not em or em == "null"
+                                    observed[rid] = ObservedResource(
+                                        system_id="analytics_platform", resource_id=rid,
+                                        state="ANONYMIZED" if is_anon else "PRESENT",
+                                        evidence_id=fid, is_compliant=is_anon
+                                    )
                         elif svc == "integration_service":
                             en = (d.get("enabled") == "true" or ctx.get("enabled") == "true")
                             observed[rid] = ObservedResource(
@@ -707,11 +751,18 @@ class EvidenceScanner:
                             rows = int(d.get("rows") or ctx.get("rows") or 0)
                             marker = d.get("marker_found") or ctx.get("marker_found")
                             em = d.get("requester_email") or ctx.get("requester_email") or d.get("email") or ctx.get("email")
+                            m_val = d.get("matched_value") or ctx.get("matched_value")
+                            is_scan = (evt == "message_pii_scan" or bool(m_val))
                             if marker == "false" or (svc == "support_replica" and rows > 0):
                                 observed[rid] = ObservedResource(
                                     system_id="support_platform", resource_id=rid,
                                     state="PRESENT", evidence_id=fid, is_compliant=False,
                                     data_category="SUPPORT_ATTACHMENT"
+                                )
+                            elif is_scan:
+                                observed[rid] = ObservedResource(
+                                    system_id="support_platform", resource_id=rid,
+                                    state="PRESENT", evidence_id=fid, is_compliant=False
                                 )
                             else:
                                 is_red = not em or em == "null"

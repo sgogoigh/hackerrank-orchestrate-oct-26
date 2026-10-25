@@ -351,3 +351,54 @@ Section 6.5 of `AGENTS.md` mandates that before performing any audit, the agent 
      - Step 13: `VERIFY_RECORD_ANONYMIZED` on `analytics_2034` (`analytics_platform`)
      - Step 14: `VERIFY_DATA_FLOW_DISABLED` on `data_flow_9522` (`integration_service`)
 * **Evidence Citation Rule:** Steps 1-4 cite `evidence_03`. Steps 5-14 describe prospective remediation and post-remediation checks, so `evidence_id = ""` strictly.
+
+---
+
+### Scenario `SC-23`: Marketing Opt-In Profile Residual in Analytics Streams (`rule_10`)
+* **Signature:** An analytics logging stream (`service_events_*.log`) captures marketing contact lookups where `email_opt_in=true`. Under Policy Rule 10 (`MARKETING_PROFILE, Always, DELETE`), opt-in and marketing profiles must be deleted rather than merely anonymized.
+* **Example (`case_12` - Minjun Kim):**
+  - Observed in `evidence_01` (`service_events_ap_south_20260915.log`): `analytics_9914` with `email_opt_in=true`.
+* **Remediation & Verification:**
+  - Finding: `REPORT_REMAINING_RECORD`, `analytics_platform`, `analytics_9914`, `PRESENT`, citing `evidence_01`.
+  - Remediation: `DELETE_RECORD`, `analytics_platform`, `analytics_9914`, `ABSENT`, `evidence_id = ""`.
+  - Verification: `VERIFY_RECORD_ABSENT`, `analytics_platform`, `analytics_9914`, `ABSENT`, `evidence_id = ""`.
+
+---
+
+### Scenario `SC-24`: Support File Attachment Exclusive to Deletion Subject (`rule_06`)
+* **Signature:** A support ticket attachment (e.g. uploaded ID scan, receipt, or proof of address) belongs exclusively to the deletion subject. Unlike conversation messages that contain shared context (`rule_05` &rarr; `REDACT`), attachments must be completely deleted (`rule_06` &rarr; `DELETE`).
+* **Example (`case_13` - Noor Khalil):**
+  - Recorded in `customer_account_handover_20261001.txt`: `support_4218` under category `SUPPORT_ATTACHMENT` with status `FOUND`.
+* **Remediation & Verification:**
+  - Finding: `REPORT_REMAINING_RECORD`, `support_platform`, `support_4218`, `PRESENT`, citing `evidence_03`.
+  - Remediation: `DELETE_RECORD`, `support_platform`, `support_4218`, `ABSENT`, `evidence_id = ""`.
+  - Verification: `VERIFY_RECORD_ABSENT`, `support_platform`, `support_4218`, `ABSENT`, `evidence_id = ""`.
+
+---
+
+### Scenario `SC-25`: Database Read Replica & Failover Ghost Records
+* **Signature:** Primary transactional tables have successfully purged customer profiles, but secondary read replicas or regional failover dumps (`customer_data_read_replica_*.sql`) retain full profile records or search index records.
+* **Example (`case_16` - Diya K):**
+  - In `evidence_05` (`customer_data_read_replica_20260921.sql`), `INSERT INTO "customer_data_read_replica"` contains active entries for `account_994` and `search_1007`.
+* **Remediation & Verification:**
+  - Finding: `REPORT_REMAINING_RECORD` on `account_994` and `search_1007`, citing `evidence_05`.
+  - Remediation: `DELETE_RECORD` on both resources, `evidence_id = ""`.
+  - Verification: `VERIFY_RECORD_ABSENT` on both resources, `evidence_id = ""`.
+
+---
+
+### Scenario `SC-26`: Multi-Service Snapshot Assurance Verification (`COMPLETE` Case)
+* **Signature:** An account deletion request was fully executed by the deletion worker. The audit snapshot bundle (`customer_data_snapshot_bundle_*.json`) or service resource export confirms that:
+  - Account service profile lookup returns 404 / absent.
+  - Retained security audit event is intact within legal retention period.
+  - Analytics profile is stripped of user identifiers (cohort metrics retained).
+  - Support ticket messages are redacted (`[REDACTED]`).
+  - Active integration connectors are stopped (`enabled = false`).
+  - Backup archive restore access is blocked (`restore_allowed = false`).
+* **Example (`case_21` - Amara Okeke & `case_31` - Amara Eze):**
+  - `case_31` verified against `evidence_51`:
+    1. Step 1: `VERIFY_RECORD_ABSENT`, `account_service`, `account_4857`, `evidence_51`
+    2. Step 2: `VERIFY_RECORD_PRESENT`, `security_service`, `audit_record_6909`, `evidence_51`
+    3. Step 3: `VERIFY_RECORD_REDACTED`, `identity_service`, `tombstone_440`, `evidence_51`
+  - Verdict: `COMPLETE`. Only evidence-backed verification steps are emitted.
+

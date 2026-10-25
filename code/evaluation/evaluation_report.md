@@ -6,17 +6,17 @@ This report summarizes the performance of the AI-powered deletion-audit agent ag
 
 | Metric Category | Metric Name | Score |
 |---|---|---|
-| **Case Level** | Deletion Status Accuracy | 100.00% |
-| **Sequence Level** | Exact Array Sequence Accuracy | 37.50% |
-| **Step Level** | Step Precision | 96.25% |
-| **Step Level** | Step Recall | 79.79% |
-| **Step Level** | Step F1-Score | 87.25% |
-| **Field Accuracy** | `phase` Accuracy | 96.25% |
-| **Field Accuracy** | `system_id` Accuracy | 71.25% |
-| **Field Accuracy** | `resource_id` Accuracy | 71.25% |
-| **Field Accuracy** | `operation` Accuracy | 71.88% |
-| **Field Accuracy** | `state` Accuracy | 74.38% |
-| **Field Accuracy** | `evidence_id` Accuracy | 98.75% |
+| **Case Level** | Deletion Status Accuracy | 96.88% |
+| **Sequence Level** | Exact Array Sequence Accuracy | 50.00% |
+| **Step Level** | Step Precision | 97.13% |
+| **Step Level** | Step Recall | 87.56% |
+| **Step Level** | Step F1-Score | 92.10% |
+| **Field Accuracy** | `phase` Accuracy | 98.84% |
+| **Field Accuracy** | `system_id` Accuracy | 75.14% |
+| **Field Accuracy** | `resource_id` Accuracy | 75.14% |
+| **Field Accuracy** | `operation` Accuracy | 77.46% |
+| **Field Accuracy** | `state` Accuracy | 78.03% |
+| **Field Accuracy** | `evidence_id` Accuracy | 96.53% |
 
 ---
 

@@ -23,6 +23,7 @@ class SubjectIdentity:
     email_hashes: Set[str] = field(default_factory=set)
     tombstone_ids: Set[str] = field(default_factory=set)
     account_id: Optional[str] = None
+    audit_record_id: Optional[str] = None
     associated_resources: Set[str] = field(default_factory=set)
 
     def matches_email(self, email: str) -> bool:
@@ -64,6 +65,13 @@ class IdentityResolver:
         self.historical_names_by_user_id: Dict[str, Set[str]] = {}
         # Mapping: user_id -> set of tombstone resource IDs
         self.tombstones_by_user_id: Dict[str, Set[str]] = {}
+        # Mapping: email/user_id -> account_id
+        self.email_to_account: Dict[str, str] = {}
+        self.user_to_account: Dict[str, str] = {}
+        # Mapping: user_id -> audit_record_id
+        self.user_to_audit_record: Dict[str, str] = {}
+        # Mapping: user_id -> associated resources
+        self.associated_resources_by_user: Dict[str, Set[str]] = {}
 
         self._load_data()
 
@@ -71,7 +79,7 @@ class IdentityResolver:
         """Loads and indexes identity datasets."""
         self._load_identities()
         self._load_audit_log()
-        self._load_activity_tombstones()
+        self._load_evidence_linkages()
 
     def _load_identities(self) -> None:
         """Parses user_identities.csv snapshot."""
@@ -114,24 +122,107 @@ class IdentityResolver:
                 elif field_name == "name":
                     self.historical_names_by_user_id.setdefault(user_id, set()).update([old_val, new_val])
 
-    def _load_activity_tombstones(self) -> None:
-        """Parses system_activity.csv for tombstone linkages."""
-        if not self.activity_path.exists():
-            return
+    def _load_evidence_linkages(self) -> None:
+        """Loads account IDs, audit record IDs, and resource associations across evidence and activity."""
+        dataset_dir = self.identities_path.parent
 
-        with open(self.activity_path, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                target_sys = row.get("target_system", "")
-                res_id = row.get("resource_id", "")
-                details = row.get("details", "")
+        # 1. Handover text (customer_account_handover_20261001.txt)
+        p_handover = dataset_dir / "evidence" / "records" / "customer_account_handover_20261001.txt"
+        if p_handover.exists():
+            with open(p_handover, "r", encoding="utf-8", errors="ignore") as f:
+                for line in f:
+                    if "|" in line and "account_service" in line:
+                        parts = [x.strip() for x in line.split("|")]
+                        if len(parts) >= 6:
+                            rid = parts[2]
+                            ident = parts[5].lower()
+                            self.email_to_account[ident] = rid
+                            if ident in self.email_to_user_id:
+                                uid = self.email_to_user_id[ident]
+                                self.user_to_account[uid] = rid
 
-                # Check if this activity event concerns an identity_service tombstone
-                if target_sys == "identity_service" and res_id.startswith("tombstone_"):
-                    # Extract user_id from details if present e.g. "tombstone_17 (user_17)"
+        # 2. Snapshot bundles
+        records_dir = dataset_dir / "evidence" / "records"
+        if records_dir.exists():
+            for p in records_dir.glob("customer_data_snapshot_bundle_*.json"):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    for s in data.get("snapshots", []):
+                        store = s.get("data_store")
+                        for r in s.get("records", []):
+                            rid = r.get("resource_id")
+                            cref = r.get("customer_reference") or r.get("subject_reference")
+                            em = r.get("email")
+                            if store == "account_service" and rid:
+                                if cref:
+                                    self.user_to_account[cref] = rid
+                                if em:
+                                    self.email_to_account[em.lower()] = rid
+                            elif store == "security_service" and rid:
+                                if cref:
+                                    self.user_to_audit_record[cref] = rid
+                except Exception:
+                    pass
+
+        # 3. Log trace pairing
+        logs_dir = dataset_dir / "evidence" / "logs"
+        if logs_dir.exists():
+            import re
+            for p in logs_dir.glob("*.log"):
+                traces: Dict[str, Dict[str, str]] = {}
+                try:
+                    with open(p, "r", encoding="utf-8", errors="ignore") as f:
+                        for line in f:
+                            m_tid = re.search(r'["\']?(?:trace_id|requestId)["\']?[:=]\s*["\']?([a-zA-Z0-9_\-]+)', line)
+                            m_acc = re.search(r'\b(account_\d+)\b', line)
+                            m_usr = re.search(r'\b(user_\d+)\b', line)
+                            m_em = re.search(r'[\w\.-]+@[\w\.-]+', line)
+                            m_aud = re.search(r'\b(audit_record_\d+)\b', line)
+                            if m_tid:
+                                tid = m_tid.group(1)
+                                if tid not in traces:
+                                    traces[tid] = {}
+                                if m_acc:
+                                    traces[tid]["acc"] = m_acc.group(1)
+                                if m_usr:
+                                    traces[tid]["usr"] = m_usr.group(1)
+                                if m_em:
+                                    traces[tid]["em"] = m_em.group(0).lower()
+                                if m_aud:
+                                    traces[tid]["aud"] = m_aud.group(1)
+                    for tid, ctx in traces.items():
+                        acc = ctx.get("acc")
+                        usr = ctx.get("usr")
+                        em = ctx.get("em")
+                        aud = ctx.get("aud")
+                        if acc:
+                            if em:
+                                self.email_to_account[em] = acc
+                            if usr:
+                                self.user_to_account[usr] = acc
+                        if aud and usr:
+                            self.user_to_audit_record[usr] = aud
+                except Exception:
+                    pass
+
+        # 4. Activity linkages
+        if self.activity_path.exists():
+            with open(self.activity_path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    tgt = row.get("target_system", "")
+                    res_id = row.get("resource_id", "")
+                    details = row.get("details", "")
+                    # Tombstones
+                    if tgt == "identity_service" and res_id.startswith("tombstone_"):
+                        for user_id in self.users_by_id.keys():
+                            if user_id in details:
+                                self.tombstones_by_user_id.setdefault(user_id, set()).add(res_id)
+                    # Associated resources mentioned with user_id
                     for user_id in self.users_by_id.keys():
-                        if user_id in details:
-                            self.tombstones_by_user_id.setdefault(user_id, set()).add(res_id)
+                        if user_id in details and res_id:
+                            self.associated_resources_by_user.setdefault(user_id, set()).add(res_id)
 
     def resolve(self, email: str) -> Optional[SubjectIdentity]:
         """Resolves full current and historical identity graph given an email address."""
@@ -175,7 +266,7 @@ class IdentityResolver:
         if user_id in self.tombstones_by_user_id:
             tombstones.update(self.tombstones_by_user_id[user_id])
 
-        # Default account_id for user_01 to user_10
+        # Resolve account_id
         account_id = None
         if user_id.startswith("user_"):
             try:
@@ -184,6 +275,24 @@ class IdentityResolver:
                     account_id = f"account_{num:03d}"
             except ValueError:
                 pass
+        if not account_id:
+            account_id = (
+                self.email_to_account.get(normalized_email)
+                or self.email_to_account.get(primary_email)
+                or self.user_to_account.get(user_id)
+            )
+
+        # Resolve audit_record_id
+        audit_record_id = self.user_to_audit_record.get(user_id)
+
+        # Associated resources
+        assoc = set()
+        if user_id in self.associated_resources_by_user:
+            assoc.update(self.associated_resources_by_user[user_id])
+        if account_id:
+            assoc.add(account_id)
+        if audit_record_id:
+            assoc.add(audit_record_id)
 
         return SubjectIdentity(
             user_id=user_id,
@@ -194,4 +303,6 @@ class IdentityResolver:
             email_hashes=email_hashes,
             tombstone_ids=tombstones,
             account_id=account_id,
+            audit_record_id=audit_record_id,
+            associated_resources=assoc,
         )

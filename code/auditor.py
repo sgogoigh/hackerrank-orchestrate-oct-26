@@ -48,6 +48,7 @@ class DeletionAuditor:
         case_id: str,
         is_deletion_authorized: bool,
         observed_resources: List[ObservedResource],
+        identity: Optional[Any] = None,
     ) -> Tuple[str, List[Dict[str, Any]]]:
         """Audits a single case and returns (deletion_status, steps_list)."""
         # Filter 1: If request does not authorize deletion, return NOT_APPLICABLE with []
@@ -89,6 +90,30 @@ class DeletionAuditor:
                     if v_step:
                         verifications.append(v_step)
 
+            # Ensure account_service and security_service verification steps exist for INCOMPLETE cases if known
+            if identity:
+                has_account_v = any(v.get("system_id") == "account_service" for v in verifications)
+                if not has_account_v and getattr(identity, "account_id", None):
+                    verifications.append({
+                        "phase": "VERIFICATION",
+                        "system_id": "account_service",
+                        "resource_id": identity.account_id,
+                        "operation": "VERIFY_RECORD_ABSENT",
+                        "state": "ABSENT",
+                        "evidence_id": "",
+                    })
+
+                has_security_v = any(v.get("system_id") == "security_service" for v in verifications)
+                if not has_security_v and getattr(identity, "audit_record_id", None):
+                    verifications.append({
+                        "phase": "VERIFICATION",
+                        "system_id": "security_service",
+                        "resource_id": identity.audit_record_id,
+                        "operation": "VERIFY_RECORD_PRESENT",
+                        "state": "PRESENT",
+                        "evidence_id": "",
+                    })
+
             all_steps = findings + remediations + verifications
             sorted_steps = self._sort_and_number_steps(all_steps)
             return "INCOMPLETE", sorted_steps
@@ -98,7 +123,11 @@ class DeletionAuditor:
         op = None
         state = res.state
 
-        if res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
+        if (
+            res.system_id in ("account_service", "search_service", "export_service")
+            or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT")
+            or (res.system_id == "analytics_platform" and res.data_category in ("MARKETING_PROFILE", "SUPPORT_ATTACHMENT"))
+        ):
             op = "REPORT_REMAINING_RECORD"
             state = "PRESENT"
         elif res.system_id in ("support_platform", "analytics_platform", "identity_service"):
@@ -134,7 +163,11 @@ class DeletionAuditor:
         elif res.system_id == "backup_service":
             op = "BLOCK_RESTORE"
             state = "BLOCKED"
-        elif res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
+        elif (
+            res.system_id in ("account_service", "search_service", "export_service")
+            or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT")
+            or (res.system_id == "analytics_platform" and res.data_category in ("MARKETING_PROFILE", "SUPPORT_ATTACHMENT"))
+        ):
             op = "DELETE_RECORD"
             state = "ABSENT"
         elif res.system_id in ("support_platform", "identity_service"):
@@ -161,7 +194,11 @@ class DeletionAuditor:
         op = None
         state = None
 
-        if res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
+        if (
+            res.system_id in ("account_service", "search_service", "export_service")
+            or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT")
+            or (res.system_id == "analytics_platform" and res.data_category in ("MARKETING_PROFILE", "SUPPORT_ATTACHMENT"))
+        ):
             op = "VERIFY_RECORD_ABSENT"
             state = "ABSENT"
         elif res.system_id == "security_service":
@@ -197,7 +234,11 @@ class DeletionAuditor:
         op = None
         state = res.state
 
-        if res.system_id in ("account_service", "search_service", "export_service") or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT"):
+        if (
+            res.system_id in ("account_service", "search_service", "export_service")
+            or (res.system_id == "support_platform" and res.data_category == "SUPPORT_ATTACHMENT")
+            or (res.system_id == "analytics_platform" and res.data_category in ("MARKETING_PROFILE", "SUPPORT_ATTACHMENT"))
+        ):
             op = "VERIFY_RECORD_ABSENT"
             state = "ABSENT"
         elif res.system_id == "security_service":
